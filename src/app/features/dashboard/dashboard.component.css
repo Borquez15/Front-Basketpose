@@ -1,0 +1,71 @@
+.dashboard { display: flex; flex-direction: column; min-height: 100vh; }
+
+.dash-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 20px; background: var(--bg2); border-bottom: 1px solid var(--border);
+}
+.dash-header h2 { font-size: 1.15rem; font-weight: 800; }
+.dash-header p  { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+.content { flex: 1; overflow-y: auto; padding: 18px 20px 90px; }
+
+/* Clases scroll */
+.clases-scroll { padding-bottom: 6px; }
+.class-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-width: 175px; flex-shrink: 0;
+}
+.class-card h4 { font-size: 0.9rem; font-weight: 700; }
+.class-card p  { font-size: 0.78rem; color: var(--muted); }
+
+.new-card {
+  background: var(--orange-dim) !important;
+  border: 1.5px dashed var(--orange) !important;
+  align-items: center; justify-content: center; cursor: pointer;
+  transition: all 0.2s;
+}
+.new-card:hover { transform: scale(1.03); }
+.new-card .plus { font-size: 1.9rem; color: var(--orange); }
+.new-card p     { color: var(--orange) !important; font-weight: 600; }
+
+/* Sesión card */
+.sesion-card {}
+.sesion-body { display: flex; align-items: flex-start; justify-content: space-between; }
+.tiro-label { font-size: 0.75rem; color: var(--muted); }
+.tiro-num   { font-size: 2.2rem; font-weight: 800; line-height: 1.1; }
+.date-badge { font-size: 0.75rem; color: var(--muted); }
+
+/* Gauge */
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.gauge { position: relative; width: 100px; height: 100px; }
+.gauge-val {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.gauge-val .val { font-size: 1.6rem; font-weight: 800; }
+.gauge-lbl      { font-size: 0.72rem; color: var(--muted); }
+
+.ver-mas {
+  display: block; margin-top: 14px;
+  color: var(--orange); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  text-decoration: none;
+}
+.ver-mas:hover { text-decoration: underline; }
+
+/* Quick grid */
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.quick-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; color: var(--text);
+}
+.quick-card:hover { border-color: var(--orange); background: var(--orange-dim); transform: translateY(-2px); }
+.quick-icon {
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  background: var(--orange-dim); display: flex; align-items: center;
+  justify-content: center; font-size: 1.3rem;
+}
+.quick-card span { font-size: 0.8rem; font-weight: 600; text-align: center; }

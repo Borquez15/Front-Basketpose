@@ -1,0 +1,47 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <h2>Jugadores</h2>
+    <button class="btn btn-primary btn-sm" routerLink="/app/jugadores/nuevo">+ Agregar</button>
+  </header>
+
+  <main class="content">
+    <div class="field" style="margin-bottom:12px;">
+      <input type="text" placeholder="🔍  Buscar jugador..."
+             [value]="search()" (input)="search.set($any($event.target).value)"/>
+    </div>
+
+    <div class="pos-filters">
+      @for (pos of posiciones; track pos) {
+        <span [class]="posFilter()===pos ? 'chip chip-orange' : 'chip chip-gray'"
+              style="cursor:pointer;" (click)="posFilter.set(pos)">
+          {{ pos }}
+        </span>
+      }
+    </div>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <div class="icon">👥</div>
+        <p>No hay jugadores registrados.<br/>Agrega uno para comenzar.</p>
+        <button class="btn btn-primary" routerLink="/app/jugadores/nuevo">Agregar jugador</button>
+      </div>
+    }
+
+    @for (j of filtered(); track j.id) {
+      <div class="player-row" [routerLink]="['/app/analisis', j.id]">
+        <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
+        <div class="player-info">
+          <div class="player-name">{{ j.nombre }}</div>
+          <div class="player-meta">
+            <span class="chip chip-gray">{{ j.posicion }}</span>
+            <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">{{ j.puntuacionPromedio }} pts</span>
+            <span class="clase-tag">{{ j.claseNombre }}</span>
+          </div>
+        </div>
+        <span class="arrow">›</span>
+      </div>
+    }
+  </main>
+
+  <app-navbar active="jugadores"/>
+</div>

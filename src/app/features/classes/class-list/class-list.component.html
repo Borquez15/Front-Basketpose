@@ -1,0 +1,43 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <h2>Mis Clases</h2>
+    <button class="btn btn-primary btn-sm" routerLink="/app/clases/nueva">+ Nueva</button>
+  </header>
+
+  <main class="content">
+    <div class="field" style="margin-bottom:14px;">
+      <input type="text" placeholder="🔍  Buscar clase..."
+             [value]="search()" (input)="search.set($any($event.target).value)"/>
+    </div>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">
+        <div class="icon">🏀</div>
+        <p>No se encontraron clases.<br/>Crea una nueva para comenzar.</p>
+        <button class="btn btn-primary" routerLink="/app/clases/nueva">Crear clase</button>
+      </div>
+    }
+
+    @for (clase of filtered(); track clase.id) {
+      <div class="clase-card card" [routerLink]="['/app/clases', clase.id]">
+        <div class="clase-top">
+          <div>
+            <div class="clase-nombre">{{ clase.nombre }}</div>
+            <div class="clase-lugar">{{ clase.lugar }}</div>
+          </div>
+          <span class="chip chip-green">Activa</span>
+        </div>
+        <div class="clase-chips">
+          <span class="chip chip-gray">{{ clase.totalJugadores }} jugadores</span>
+          <span [class]="rolChip(clase.rol)">{{ clase.rol | titlecase }}</span>
+        </div>
+        <div class="prog-bar" style="margin-top:10px;">
+          <div class="prog-fill" [style.width.%]="clase.promedioTecnico"></div>
+        </div>
+        <div class="clase-avg">Promedio técnico: {{ clase.promedioTecnico }} pts</div>
+      </div>
+    }
+  </main>
+
+  <app-navbar active="clases"/>
+</div>

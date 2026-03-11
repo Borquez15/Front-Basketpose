@@ -1,0 +1,15 @@
+.page  { display: flex; flex-direction: column; min-height: 100vh; }
+.topbar { display: flex; align-items: center; padding: 14px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar h2 { font-size: 1rem; font-weight: 700; }
+.topbar p  { font-size: 0.75rem; color: var(--muted); }
+.content   { flex: 1; padding: 16px 20px 40px; }
+.form-col  { display: flex; flex-direction: column; gap: 14px; }
+.section-lbl { font-weight: 700; font-size: 0.9rem; }
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; background: var(--card); border-radius: var(--radius-sm);
+}
+.toggle-name { font-size: 0.875rem; font-weight: 500; }
+.toggle-desc { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.error-msg   { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: var(--red); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.82rem; }

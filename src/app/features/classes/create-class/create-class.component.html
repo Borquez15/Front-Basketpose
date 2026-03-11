@@ -1,0 +1,61 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-icon" routerLink="/app/clases">←</button>
+      <div><h2>Nueva Clase</h2><p>Configura tu grupo</p></div>
+    </div>
+  </header>
+
+  <main class="content">
+    @if (error()) {
+      <div class="error-msg">{{ error() }}</div>
+    }
+
+    <div class="form-col">
+      <div class="field"><label>Nombre de la clase *</label><input type="text" placeholder="ej. Juvenil A, Avanzado..." [(ngModel)]="nombre"/></div>
+      <div class="field"><label>Descripción</label><textarea rows="3" placeholder="Describe el nivel o propósito..." [(ngModel)]="descripcion" style="resize:none;"></textarea></div>
+      <div class="form-grid">
+        <div class="field"><label>Nivel</label>
+          <select [(ngModel)]="nivel">
+            <option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Élite</option>
+          </select>
+        </div>
+        <div class="field"><label>Categoría</label>
+          <select [(ngModel)]="categoria">
+            <option>Infantil</option><option>Juvenil</option><option>Adulto</option><option>Mixto</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Lugar / Cancha</label><input type="text" placeholder="ej. Gimnasio Municipal" [(ngModel)]="lugar"/></div>
+
+      <hr class="divider"/>
+      <div class="section-lbl">Configuración de análisis</div>
+
+      <div class="toggle-row">
+        <div><div class="toggle-name">Reconocimiento facial</div><div class="toggle-desc">Identificar jugadores automáticamente</div></div>
+        <label class="toggle">
+          <input type="checkbox" [checked]="reconocimientoFacial()" (change)="reconocimientoFacial.set($any($event.target).checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-name">Análisis en tiempo real</div><div class="toggle-desc">Detectar errores durante la sesión</div></div>
+        <label class="toggle">
+          <input type="checkbox" [checked]="analisisRealTime()" (change)="analisisRealTime.set($any($event.target).checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-name">Reportes automáticos</div><div class="toggle-desc">Reporte al finalizar cada sesión</div></div>
+        <label class="toggle">
+          <input type="checkbox" [checked]="reportesAutomaticos()" (change)="reportesAutomaticos.set($any($event.target).checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <hr class="divider"/>
+      <button class="btn btn-primary btn-full" style="padding:14px;" (click)="guardar()">Crear clase</button>
+      <button class="btn btn-ghost btn-full" routerLink="/app/clases">Cancelar</button>
+    </div>
+  </main>
+</div>

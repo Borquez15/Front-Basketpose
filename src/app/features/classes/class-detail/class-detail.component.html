@@ -1,0 +1,81 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-icon" routerLink="/app/clases">←</button>
+      <div>
+        <h2>{{ clase.nombre }}</h2>
+        <p>{{ clase.totalJugadores }} jugadores activos</p>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" routerLink="/app/sesion">▶ Sesión</button>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <div class="tab" [class.active]="activeTab()===0" (click)="setTab(0)">Jugadores</div>
+      <div class="tab" [class.active]="activeTab()===1" (click)="setTab(1)">Auxiliares</div>
+      <div class="tab" [class.active]="activeTab()===2" (click)="setTab(2)">Invitaciones</div>
+    </div>
+  </div>
+
+  <main class="content">
+
+    <!-- Tab 0: Jugadores -->
+    @if (activeTab() === 0) {
+      @for (j of jugadores(); track j.id) {
+        <div class="player-row" [routerLink]="['/app/analisis', j.id]">
+          <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
+          <div class="player-info">
+            <div class="player-name">{{ j.nombre }}</div>
+            <div class="player-meta">
+              <span class="chip chip-gray">{{ j.posicion }}</span>
+              <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">{{ j.puntuacionPromedio }} pts</span>
+            </div>
+          </div>
+          <span class="arrow">›</span>
+        </div>
+      }
+    }
+
+    <!-- Tab 1: Auxiliares -->
+    @if (activeTab() === 1) {
+      <div class="player-row">
+        <div class="avatar" style="background:#3b82f6;">RA</div>
+        <div class="player-info">
+          <div class="player-name">Roberto Álvarez</div>
+          <div class="player-meta"><span class="chip chip-blue">Auxiliar</span></div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px;">+ Invitar auxiliar</button>
+    }
+
+    <!-- Tab 2: Invitaciones -->
+    @if (activeTab() === 2) {
+      <div class="invite-option">
+        <h4>✉️ Invitar por correo</h4>
+        <div class="field"><input type="email" placeholder="correo@ejemplo.com"/></div>
+        <div class="field">
+          <label>Rol</label>
+          <select><option>jugador</option><option>auxiliar</option></select>
+        </div>
+        <button class="btn btn-primary btn-sm">Enviar invitación</button>
+      </div>
+
+      <div class="invite-option" style="margin-top:12px;">
+        <h4>🔗 Compartir código</h4>
+        <div class="code-box">
+          <span class="code-text">BK-7X3P</span>
+          <button class="btn btn-ghost btn-sm" (click)="copyCode()">
+            {{ codeCopied() ? '✅ Copiado' : '📋 Copiar' }}
+          </button>
+        </div>
+        <div class="code-exp">Expira en 48 horas · Solo jugadores</div>
+        <button class="btn btn-outline btn-sm">Generar nuevo código</button>
+      </div>
+    }
+
+  </main>
+
+  <button class="fab" routerLink="/app/jugadores/nuevo">+</button>
+</div>

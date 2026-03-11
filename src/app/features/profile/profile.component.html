@@ -1,0 +1,92 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <h2>Mi Perfil</h2>
+  </header>
+
+  <main class="content">
+
+    <!-- User header -->
+    <div class="user-header">
+      <div class="avatar avatar-lg">{{ initials }}</div>
+      <div>
+        <div class="user-name">{{ nombre }}</div>
+        <div class="user-email">{{ correo }}</div>
+      </div>
+    </div>
+
+    <!-- Mis roles -->
+    <div class="section-label">Mis roles</div>
+    <div class="card roles-card">
+      @for (clase of clases(); track clase.id) {
+        <div class="role-row">
+          <span class="role-clase">{{ clase.nombre }}</span>
+          <span [class]="rolChipClass(clase.rol)">{{ clase.rol | titlecase }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Ajustes -->
+    <div class="section-label">Ajustes</div>
+    <div class="card settings-card">
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-icon">✏️</div>
+          <span class="setting-text">Editar perfil</span>
+        </div>
+        <span class="arrow">›</span>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-icon">🔒</div>
+          <span class="setting-text">Cambiar contraseña</span>
+        </div>
+        <span class="arrow">›</span>
+      </div>
+
+      <div class="setting-row" (click)="actualizarRostro()">
+        <div class="setting-left">
+          <div class="setting-icon">🫠</div>
+          <span class="setting-text">Reconocimiento facial</span>
+        </div>
+        <span class="face-status" [class.updated]="faceUpdated()">
+          {{ faceUpdated() ? '✅ Actualizado' : 'Actualizar ›' }}
+        </span>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-left">
+          <div class="setting-icon">🔔</div>
+          <span class="setting-text">Notificaciones</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox"
+                 [checked]="notificaciones()"
+                 (change)="notificaciones.set($any($event.target).checked)"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="setting-row logout-row" routerLink="/auth/login" (click)="logout()">
+        <div class="setting-left">
+          <div class="setting-icon danger-icon">🚪</div>
+          <span class="setting-text danger-text">Cerrar sesión</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- App info -->
+    <div class="app-info">
+      <span>BasketPose</span>
+      <span class="dot-sep">·</span>
+      <span>v1.0.0</span>
+      <span class="dot-sep">·</span>
+      <span>Tesis ITSON 2026</span>
+    </div>
+
+  </main>
+
+  <app-navbar active="perfil"/>
+</div>

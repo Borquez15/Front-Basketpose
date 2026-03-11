@@ -1,0 +1,79 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-icon" routerLink="/app/clases/1">←</button>
+      <h2>Análisis de Tiro</h2>
+    </div>
+  </header>
+
+  <main class="content">
+    <!-- Player info -->
+    <div class="player-header">
+      <div class="avatar avatar-lg" [style.background]="analisis.jugadorAvatarColor">{{ analisis.jugadorInitials }}</div>
+      <div>
+        <div class="player-name">{{ analisis.jugadorNombre }}</div>
+        <div class="player-sub">Último análisis · {{ analisis.horaEvento }}</div>
+      </div>
+    </div>
+
+    <!-- Score gauge -->
+    <div class="gauge-section">
+      <div class="gauge-big">
+        <svg viewBox="0 0 100 100" width="130" height="130">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg3)" stroke-width="9"/>
+          <circle cx="50" cy="50" r="40" fill="none"
+                  [attr.stroke]="gaugeColor" stroke-width="9"
+                  [attr.stroke-dasharray]="251.2"
+                  [attr.stroke-dashoffset]="gaugeOffset"
+                  stroke-linecap="round"
+                  style="transform:rotate(-90deg);transform-origin:50% 50%;"/>
+        </svg>
+        <div class="gauge-center">
+          <span class="gauge-num" [style.color]="gaugeColor">{{ analisis.puntuacionGlobal }}</span>
+        </div>
+      </div>
+      <div class="gauge-labels">
+        <div class="gauge-title">Puntuación General</div>
+        <div class="gauge-sub" [style.color]="gaugeColor">
+          {{ analisis.puntuacionGlobal >= 80 ? 'Excelente técnica' : analisis.puntuacionGlobal >= 60 ? 'Técnica aceptable' : 'Necesita mejorar' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Ángulos -->
+    <div class="card" style="margin-bottom:12px;">
+      <div class="section-lbl">Ángulos detectados</div>
+      @for (a of analisis.angulos; track a.nombre) {
+        <div class="angle-row">
+          <div class="angle-left">
+            <span>{{ estadoIcon(a.estado) }}</span>
+            <div>
+              <div class="angle-name">{{ a.nombre }}</div>
+              <div class="angle-range">Rango: {{ a.rangoMin }}–{{ a.rangoMax }}°</div>
+            </div>
+          </div>
+          <span class="angle-val" [style.color]="estadoColor(a.estado)">{{ a.valor }}°</span>
+        </div>
+      }
+    </div>
+
+    <!-- Errores -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="section-lbl">Errores detectados</div>
+      @for (e of analisis.errores; track e.nombre) {
+        <div class="error-card">
+          <div>
+            <div class="error-name">{{ e.nombre }}</div>
+            <div class="error-desc">{{ e.descripcion }}</div>
+          </div>
+          <span [class]="gravedadChip(e.gravedad)">{{ e.gravedad }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" routerLink="/app/reporte/1">📋 Ver historial</button>
+      <button class="btn btn-primary">↗ Compartir</button>
+    </div>
+  </main>
+</div>

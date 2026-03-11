@@ -1,0 +1,51 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-icon" routerLink="/app/jugadores">←</button>
+      <div><h2>Agregar Jugador</h2><p>Registro de nuevo jugador</p></div>
+    </div>
+  </header>
+
+  <main class="content">
+    @if (error()) {
+      <div class="error-msg">{{ error() }}</div>
+    }
+
+    <!-- Face capture -->
+    <div class="face-box" [class.captured]="faceCapture()">
+      <div class="face-avatar">{{ faceCapture() ? '🙂' : '👤' }}</div>
+      <button class="btn btn-outline btn-sm" (click)="capturarRostro()">
+        {{ faceCapture() ? '✅ Rostro capturado' : '📷 Capturar rostro' }}
+      </button>
+      <p>Se usará para reconocimiento facial durante las sesiones</p>
+    </div>
+
+    <div class="form-col">
+      <div class="field"><label>Nombre completo *</label><input type="text" placeholder="Nombre del jugador" [(ngModel)]="nombre"/></div>
+      <div class="field"><label>Correo electrónico</label><input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="correo"/></div>
+      <div class="form-grid">
+        <div class="field"><label>Edad</label><input type="number" placeholder="18" [(ngModel)]="edad"/></div>
+        <div class="field"><label>Posición</label>
+          <select [(ngModel)]="posicion">
+            <option>Base</option><option>Escolta</option><option>Alero</option><option>Ala-Pivot</option><option>Pivot</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Estatura (cm)</label><input type="number" placeholder="180" [(ngModel)]="estatura"/></div>
+        <div class="field"><label>Peso (kg)</label><input type="number" placeholder="75" [(ngModel)]="peso"/></div>
+      </div>
+      <div class="field"><label>Clase</label>
+        <select [(ngModel)]="claseNombre">
+          @for (c of clases(); track c.id) {
+            <option [value]="c.nombre">{{ c.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <hr class="divider"/>
+      <button class="btn btn-primary btn-full" style="padding:14px;" (click)="guardar()">Guardar jugador</button>
+      <button class="btn btn-ghost btn-full" routerLink="/app/jugadores">Cancelar</button>
+    </div>
+  </main>
+</div>

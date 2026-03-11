@@ -1,0 +1,23 @@
+<div class="register-screen fade-in">
+  <div class="register-box">
+    <div class="login-logo">
+      <div class="logo-icon">🏀</div>
+      <h1>Crear cuenta</h1>
+      <p>Únete a BasketPose</p>
+    </div>
+
+    <div class="login-form">
+      @if (error()) {
+        <div class="error-msg">{{ error() }}</div>
+      }
+      <div class="field"><label>Nombre completo *</label><input type="text" placeholder="Tu nombre completo" [(ngModel)]="nombre"/></div>
+      <div class="field"><label>Correo electrónico *</label><input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="correo"/></div>
+      <div class="form-grid">
+        <div class="field"><label>Contraseña *</label><input type="password" placeholder="••••••••" [(ngModel)]="password"/></div>
+        <div class="field"><label>Confirmar *</label><input type="password" placeholder="••••••••" [(ngModel)]="confirm"/></div>
+      </div>
+      <button class="btn btn-primary btn-full" (click)="submit()">Registrarse</button>
+      <button class="btn btn-ghost btn-full" routerLink="/auth/login">← Volver al inicio</button>
+    </div>
+  </div>
+</div>
