@@ -15,6 +15,7 @@ export class LoginComponent {
   password  = '';
   showPass  = signal(false);
   error     = signal('');
+  loading   = signal(false);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -25,10 +26,14 @@ export class LoginComponent {
       this.error.set('Por favor completa todos los campos.');
       return;
     }
-    if (this.auth.login(this.correo, this.password)) {
-      this.router.navigate(['/app/dashboard']);
-    } else {
-      this.error.set('Correo o contraseña incorrectos.');
-    }
+    this.loading.set(true);
+    this.error.set('');
+    this.auth.login(this.correo, this.password).subscribe({
+      next: () => this.router.navigate(['/app/dashboard']),
+      error: () => {
+        this.error.set('Correo o contraseña incorrectos.');
+        this.loading.set(false);
+      }
+    });
   }
 }

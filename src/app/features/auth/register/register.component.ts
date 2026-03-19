@@ -16,6 +16,7 @@ export class RegisterComponent {
   password  = '';
   confirm   = '';
   error     = signal('');
+  loading   = signal(false);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -26,7 +27,14 @@ export class RegisterComponent {
     if (this.password !== this.confirm) {
       this.error.set('Las contraseñas no coinciden.'); return;
     }
-    this.auth.register(this.nombre, this.correo, this.password);
-    this.router.navigate(['/app/dashboard']);
+    this.loading.set(true);
+    this.error.set('');
+    this.auth.register(this.nombre, this.correo, this.password).subscribe({
+      next: () => this.router.navigate(['/app/dashboard']),
+      error: () => {
+        this.error.set('Error al crear la cuenta. Intenta de nuevo.');
+        this.loading.set(false);
+      }
+    });
   }
 }

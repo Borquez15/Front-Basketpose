@@ -2,6 +2,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DataService } from '../../../core/services/data.service';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 
@@ -14,12 +15,11 @@ import { NavbarComponent } from '../../../shared/components/navbar/navbar.compon
 })
 export class PlayerListComponent {
   data       = inject(DataService);
-  jugadores  = this.data.jugadores;
+  jugadores  = toSignal(this.data.getJugadores(), { initialValue: [] });
   search     = signal('');
   posFilter  = signal('Todos');
   posiciones = ['Todos', 'Base', 'Escolta', 'Alero', 'Ala-Pivot', 'Pivot'];
 
-  // Método en lugar de getter para que el template pueda llamarlo con ()
   filtered() {
     return this.jugadores().filter(j => {
       const matchSearch = j.nombre.toLowerCase().includes(this.search().toLowerCase());

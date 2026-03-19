@@ -1,18 +1,19 @@
 <div class="page fade-in">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="btn-icon" routerLink="/app/clases/1">←</button>
+      <button class="btn-icon" routerLink="/app/jugadores">←</button>
       <h2>Análisis de Tiro</h2>
     </div>
   </header>
 
   <main class="content">
+    @if (analisis(); as a) {
     <!-- Player info -->
     <div class="player-header">
-      <div class="avatar avatar-lg" [style.background]="analisis.jugadorAvatarColor">{{ analisis.jugadorInitials }}</div>
+      <div class="avatar avatar-lg" [style.background]="a.jugadorAvatarColor">{{ a.jugadorInitials }}</div>
       <div>
-        <div class="player-name">{{ analisis.jugadorNombre }}</div>
-        <div class="player-sub">Último análisis · {{ analisis.horaEvento }}</div>
+        <div class="player-name">{{ a.jugadorNombre }}</div>
+        <div class="player-sub">Último análisis · {{ a.horaEvento }}</div>
       </div>
     </div>
 
@@ -29,13 +30,13 @@
                   style="transform:rotate(-90deg);transform-origin:50% 50%;"/>
         </svg>
         <div class="gauge-center">
-          <span class="gauge-num" [style.color]="gaugeColor">{{ analisis.puntuacionGlobal }}</span>
+          <span class="gauge-num" [style.color]="gaugeColor">{{ a.puntuacionGlobal }}</span>
         </div>
       </div>
       <div class="gauge-labels">
         <div class="gauge-title">Puntuación General</div>
         <div class="gauge-sub" [style.color]="gaugeColor">
-          {{ analisis.puntuacionGlobal >= 80 ? 'Excelente técnica' : analisis.puntuacionGlobal >= 60 ? 'Técnica aceptable' : 'Necesita mejorar' }}
+          {{ a.puntuacionGlobal >= 80 ? 'Excelente técnica' : a.puntuacionGlobal >= 60 ? 'Técnica aceptable' : 'Necesita mejorar' }}
         </div>
       </div>
     </div>
@@ -43,16 +44,16 @@
     <!-- Ángulos -->
     <div class="card" style="margin-bottom:12px;">
       <div class="section-lbl">Ángulos detectados</div>
-      @for (a of analisis.angulos; track a.nombre) {
+      @for (ang of a.angulos; track ang.nombre) {
         <div class="angle-row">
           <div class="angle-left">
-            <span>{{ estadoIcon(a.estado) }}</span>
+            <span>{{ estadoIcon(ang.estado) }}</span>
             <div>
-              <div class="angle-name">{{ a.nombre }}</div>
-              <div class="angle-range">Rango: {{ a.rangoMin }}–{{ a.rangoMax }}°</div>
+              <div class="angle-name">{{ ang.nombre }}</div>
+              <div class="angle-range">Rango: {{ ang.rangoMin }}–{{ ang.rangoMax }}°</div>
             </div>
           </div>
-          <span class="angle-val" [style.color]="estadoColor(a.estado)">{{ a.valor }}°</span>
+          <span class="angle-val" [style.color]="estadoColor(ang.estado)">{{ ang.valor }}°</span>
         </div>
       }
     </div>
@@ -60,20 +61,26 @@
     <!-- Errores -->
     <div class="card" style="margin-bottom:16px;">
       <div class="section-lbl">Errores detectados</div>
-      @for (e of analisis.errores; track e.nombre) {
+      @for (err of a.errores; track err.nombre) {
         <div class="error-card">
           <div>
-            <div class="error-name">{{ e.nombre }}</div>
-            <div class="error-desc">{{ e.descripcion }}</div>
+            <div class="error-name">{{ err.nombre }}</div>
+            <div class="error-desc">{{ err.descripcion }}</div>
           </div>
-          <span [class]="gravedadChip(e.gravedad)">{{ e.gravedad }}</span>
+          <span [class]="gravedadChip(err.gravedad)">{{ err.gravedad }}</span>
         </div>
       }
     </div>
 
     <div class="actions">
-      <button class="btn btn-outline" routerLink="/app/reporte/1">📋 Ver historial</button>
+      <button class="btn btn-outline" [routerLink]="['/app/reporte', a.id]">📋 Ver historial</button>
       <button class="btn btn-primary">↗ Compartir</button>
     </div>
+    } @else {
+    <div class="empty-state">
+      <div class="icon">🏀</div>
+      <p>Cargando análisis...</p>
+    </div>
+    }
   </main>
 </div>

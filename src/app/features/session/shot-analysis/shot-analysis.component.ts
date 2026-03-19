@@ -1,6 +1,8 @@
 // shot-analysis.component.ts
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
 import { DataService } from '../../../core/services/data.service';
 
 @Component({
@@ -11,17 +13,21 @@ import { DataService } from '../../../core/services/data.service';
   styleUrls: ['./shot-analysis.component.css']
 })
 export class ShotAnalysisComponent {
-  data     = inject(DataService);
-  analisis = this.data.analisisTiro;
+  private route = inject(ActivatedRoute);
+  data          = inject(DataService);
+
+  analisis = toSignal(
+    this.route.paramMap.pipe(switchMap(p => this.data.getAnalisisTiro(+p.get('id')!)))
+  );
 
   get gaugeOffset(): number {
-    const pct  = this.analisis.puntuacionGlobal / 100;
+    const pct  = (this.analisis()?.puntuacionGlobal ?? 0) / 100;
     const circ = 2 * Math.PI * 40;
     return circ * (1 - pct);
   }
 
   get gaugeColor(): string {
-    const p = this.analisis.puntuacionGlobal;
+    const p = this.analisis()?.puntuacionGlobal ?? 0;
     if (p >= 80) return 'var(--green)';
     if (p >= 60) return 'var(--yellow)';
     return 'var(--red)';
