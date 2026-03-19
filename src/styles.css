@@ -228,3 +228,41 @@ hr.divider, .divider { border: none; border-top: 1px solid var(--border); margin
 .empty-state { text-align: center; padding: 48px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .empty-state .icon { font-size: 3rem; }
 .empty-state p { color: var(--muted); font-size: 0.875rem; }
+
+/* ── Responsive: Tablets (768px+) ── */
+@media (min-width: 768px) {
+  app-root {
+    max-width: 768px;
+  }
+
+  html { font-size: 17px; }
+
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.25rem; }
+
+  .card { padding: 20px; }
+
+  .form-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .btn { padding: 11px 22px; }
+}
+
+/* ── Responsive: Desktops (1024px+) ── */
+@media (min-width: 1024px) {
+  app-root {
+    max-width: 1024px;
+  }
+
+  html { font-size: 18px; }
+
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.375rem; }
+
+  .card { padding: 24px; }
+
+  .form-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+  .section-title { margin-bottom: 18px; }
+}

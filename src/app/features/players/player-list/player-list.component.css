@@ -57,3 +57,22 @@
 .player-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
 .clase-tag   { font-size: 0.72rem; color: var(--muted); }
 .arrow       { color: var(--muted); font-size: 1.1rem; }
+
+/* ── Responsive: Tablets (768px+) ── */
+@media (min-width: 768px) {
+  .topbar { padding: 26px 24px 18px; }
+  .content { padding: 20px 24px 100px; }
+
+  .player-row { padding: 16px 20px; }
+  .player-name { font-size: 1rem; }
+}
+
+/* ── Responsive: Desktops (1024px+) ── */
+@media (min-width: 1024px) {
+  .topbar { padding: 28px 32px 20px; }
+  .content { padding: 24px 32px 110px; }
+
+  .player-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .player-row { margin-bottom: 0; }
+}
