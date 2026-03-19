@@ -1,62 +1,63 @@
-.page { display: flex; flex-direction: column; min-height: 100vh; }
+/* profile.component.css – BasketPose dark theme */
+.page { display: flex; flex-direction: column; min-height: 100vh; background: var(--bg); }
 
 .topbar {
-  padding: 16px 20px;
+  padding: 22px 16px 18px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
 }
-.topbar h2 { font-size: 1rem; font-weight: 700; }
+.topbar h2 { font-size: 1.4rem; font-weight: 700; color: var(--text); }
 
-.content { flex: 1; padding: 18px 20px 90px; display: flex; flex-direction: column; gap: 0; }
-
-/* User header */
+/* User hero block */
 .user-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 22px;
+  gap: 16px;
+  padding: 20px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
 }
-.user-name  { font-weight: 700; font-size: 1.05rem; }
+.user-name  { font-weight: 700; font-size: 1.1rem; color: var(--text); }
 .user-email { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 
-/* Section label */
+.content { flex: 1; padding: 16px 16px 90px; display: flex; flex-direction: column; gap: 0; }
+
 .section-label {
   font-weight: 700;
   font-size: 0.875rem;
-  margin-bottom: 10px;
+  margin: 18px 0 10px;
   color: var(--text);
 }
 
-/* Roles */
-.roles-card {
-  padding: 0;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
+/* Roles card */
+.roles-card { padding: 0; overflow: hidden; margin-bottom: 4px; }
 .role-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
+  background: var(--card);
 }
-.role-row:last-child { border-bottom: none; }
-.role-clase { font-size: 0.875rem; font-weight: 500; }
+.role-row:last-child { border-bottom: none; border-radius: 0 0 var(--radius) var(--radius); }
+.role-row:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+.role-clase { font-size: 0.875rem; font-weight: 500; color: var(--text); }
 
-/* Settings */
-.settings-card { padding: 0 16px; margin-bottom: 20px; }
+/* Settings card */
+.settings-card { padding: 0 4px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); }
 
 .setting-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 0;
+  padding: 14px 12px;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.2s;
 }
 .setting-row:last-child { border-bottom: none; }
-.setting-row:hover      { opacity: 0.8; }
+.setting-row:hover { background: var(--card2); }
 
 .setting-left {
   display: flex;
@@ -64,32 +65,31 @@
   gap: 12px;
 }
 .setting-icon {
-  width: 34px; height: 34px;
+  width: 38px; height: 38px;
   border-radius: var(--radius-sm);
-  background: var(--bg3);
+  background: var(--orange-dim);
   display: flex; align-items: center; justify-content: center;
   font-size: 1rem;
 }
-.setting-text { font-size: 0.875rem; font-weight: 500; }
+.setting-text { font-size: 0.875rem; font-weight: 500; color: var(--text); }
 
 .arrow { color: var(--muted); font-size: 1rem; }
 
 .face-status { font-size: 0.8rem; color: var(--orange); font-weight: 500; }
 .face-status.updated { color: var(--green); }
 
-.danger-icon { background: rgba(239, 68, 68, 0.12); }
-.danger-text { color: var(--red); }
+.danger-icon { background: rgba(239,68,68,.12); }
+.danger-text { color: var(--red) !important; }
 
 .logout-row { border-bottom: none !important; }
 
-/* App info */
 .app-info {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: 8px;
 }
 .dot-sep { color: var(--border); }

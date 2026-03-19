@@ -1,66 +1,82 @@
+/* login.component.css – BasketPose dark theme */
 .login-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at 50% 0%, #2a1f4a 0%, var(--bg) 65%);
-  padding: 20px;
+  background: var(--bg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-box {
-  width: 100%;
-  max-width: 380px;
+/* Basketball court texture in background */
+.login-screen::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 500px;
+  border: 3px solid rgba(255,255,255,.04);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.login-screen::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px; height: 280px;
+  border: 1.5px solid rgba(255,255,255,.03);
+  pointer-events: none;
 }
 
+.login-box { width: 100%; max-width: 380px; position: relative; z-index: 1; }
+
+/* Logo */
 .login-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-bottom: 36px;
+  margin-bottom: 40px;
 }
-
 .logo-icon {
-  width: 64px; height: 64px;
+  width: 72px; height: 72px;
   background: var(--orange);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.7rem;
-  box-shadow: 0 0 48px rgba(255, 107, 53, 0.45);
+  font-size: 1.9rem;
+  box-shadow: 0 0 48px rgba(255,107,53,.4);
   animation: pulse 3s ease-in-out infinite;
 }
-
 .login-logo h1 {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: -0.5px;
+  color: var(--text);
 }
+.login-logo p { font-size: 0.82rem; color: var(--muted); }
 
-.login-logo p {
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+/* Form */
+.login-form { display: flex; flex-direction: column; gap: 14px; }
 
 .input-icon { position: relative; }
-.input-icon input { padding-right: 44px; }
+.input-icon input { padding-right: 46px; }
 .eye {
   position: absolute;
-  right: 13px; top: 50%;
+  right: 14px; top: 50%;
   transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 1rem;
+  cursor: pointer; font-size: 1.1rem;
+  color: var(--muted);
+  transition: color 0.2s;
 }
+.eye:hover { color: var(--text); }
 
 .forgot {
   text-align: center;
   color: var(--orange);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   font-weight: 500;
 }
@@ -74,16 +90,11 @@
   font-size: 0.8rem;
 }
 .or-divider::before,
-.or-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
+.or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 .error-msg {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.3);
   color: var(--red);
   border-radius: var(--radius-sm);
   padding: 10px 14px;

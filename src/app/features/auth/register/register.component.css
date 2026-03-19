@@ -1,15 +1,51 @@
+/* register.component.css – BasketPose dark theme */
 .register-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at 50% 0%, #2a1f4a 0%, var(--bg) 65%);
-  padding: 20px;
+  background: var(--bg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
 }
-.register-box { width: 100%; max-width: 380px; }
+
+/* Subtle background circles */
+.register-screen::before {
+  content: '';
+  position: absolute;
+  top: 10%; right: -100px;
+  width: 300px; height: 300px;
+  border: 2px solid rgba(255,107,53,.06);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.register-box { width: 100%; max-width: 380px; position: relative; z-index: 1; }
+
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.logo-icon {
+  width: 64px; height: 64px;
+  background: var(--orange);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.7rem;
+  box-shadow: 0 0 40px rgba(255,107,53,.35);
+}
+.login-logo h1 { font-size: 1.9rem; font-weight: 800; color: var(--text); }
+.login-logo p  { font-size: 0.82rem; color: var(--muted); }
+
+.login-form { display: flex; flex-direction: column; gap: 14px; }
+
 .error-msg {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.3);
   color: var(--red);
   border-radius: var(--radius-sm);
   padding: 10px 14px;

@@ -1,13 +1,59 @@
-.page { display: flex; flex-direction: column; min-height: 100vh; }
-.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); }
-.topbar h2 { font-size: 1rem; font-weight: 700; }
-.content { flex: 1; padding: 16px 20px 90px; }
-.pos-filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; }
-.pos-filters::-webkit-scrollbar { display: none; }
-.player-row { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: var(--card); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; color: var(--text); }
-.player-row:hover { border-left-color: var(--orange); }
+/* player-list.component.css – BasketPose dark theme */
+.page { display: flex; flex-direction: column; min-height: 100vh; background: var(--bg); }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 16px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.topbar h2 { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+
+/* Search inside header */
+.search-wrap {
+  position: relative;
+  margin-top: 14px;
+}
+.search-wrap .search-icon {
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+.search-wrap input {
+  padding-left: 38px;
+  background: var(--bg);
+  border: 1.5px solid transparent;
+}
+.search-wrap input:focus { border-color: var(--orange); }
+
+.content { flex: 1; padding: 16px 16px 90px; }
+
+.pos-filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 14px; }
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.player-row:hover { border-left-color: var(--orange); border-color: var(--orange); background: var(--card2); }
+
 .player-info { flex: 1; }
-.player-name { font-size: 0.9rem; font-weight: 600; }
-.player-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+.player-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.player-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; flex-wrap: wrap; }
 .clase-tag   { font-size: 0.72rem; color: var(--muted); }
-.arrow       { color: var(--muted); }
+.arrow       { color: var(--muted); font-size: 1.1rem; }

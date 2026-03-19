@@ -19,7 +19,8 @@ export class PlayerListComponent {
   posFilter  = signal('Todos');
   posiciones = ['Todos', 'Base', 'Escolta', 'Alero', 'Ala-Pivot', 'Pivot'];
 
-  get filtered() {
+  // Método en lugar de getter para que el template pueda llamarlo con ()
+  filtered() {
     return this.jugadores().filter(j => {
       const matchSearch = j.nombre.toLowerCase().includes(this.search().toLowerCase());
       const matchPos    = this.posFilter() === 'Todos' || j.posicion === this.posFilter();

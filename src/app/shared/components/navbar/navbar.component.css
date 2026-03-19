@@ -1,12 +1,15 @@
+/* navbar.component.css – BasketPose dark theme */
 .navbar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
+  max-width: 480px;
+  margin: 0 auto;
   background: var(--bg2);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 8px 0 14px;
+  padding: 10px 0 18px;
   z-index: 100;
 }
 
@@ -14,10 +17,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   cursor: pointer;
-  padding: 4px 16px;
-  border-radius: 8px;
+  padding: 6px 18px;
+  border-radius: var(--radius-sm);
   transition: all 0.2s;
   text-decoration: none;
 }
@@ -35,9 +38,12 @@
 .nav-item span {
   font-size: 0.65rem;
   color: var(--muted);
-  font-family: 'Sora', sans-serif;
+  font-family: var(--font);
+  font-weight: 500;
   transition: color 0.2s;
 }
 
 .nav-item.active svg  { stroke: var(--orange); }
 .nav-item.active span { color: var(--orange); }
+.nav-item:hover:not(.active) span { color: var(--text); }
+.nav-item:hover:not(.active) svg  { stroke: var(--text); }

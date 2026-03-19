@@ -14,11 +14,12 @@ import { TitleCasePipe } from '../../../shared/pipes/titlecase.pipe';
   styleUrls: ['./class-list.component.css']
 })
 export class ClassListComponent {
-  data    = inject(DataService);
-  clases  = this.data.clases;
-  search  = signal('');
+  data   = inject(DataService);
+  clases = this.data.clases;
+  search = signal('');
 
-  get filtered() {
+  // Método en lugar de getter para que el template pueda llamarlo con ()
+  filtered() {
     const q = this.search().toLowerCase();
     return this.clases().filter(c => c.nombre.toLowerCase().includes(q));
   }
