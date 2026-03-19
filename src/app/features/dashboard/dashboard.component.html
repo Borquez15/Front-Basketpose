@@ -36,9 +36,12 @@
     <!-- Última Sesión -->
     <div class="section-title">
       <h3>Última Sesión</h3>
-      <span class="date-badge">Hoy 10:30 AM</span>
+      @if (sesion) {
+        <span class="date-badge">{{ sesion.fecha | date:'dd/MM/yyyy' }} {{ sesion.horaInicio }}</span>
+      }
     </div>
 
+    @if (sesion) {
     <div class="card sesion-card">
       <div class="sesion-body">
         <div>
@@ -69,6 +72,12 @@
       </div>
       <a class="ver-mas" routerLink="/app/reporte/1">Ver análisis completo →</a>
     </div>
+    } @else {
+    <div class="empty-state">
+      <div class="icon">📋</div>
+      <p>Sin sesiones registradas aún.</p>
+    </div>
+    }
 
     <hr class="divider"/>
 

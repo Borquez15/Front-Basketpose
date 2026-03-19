@@ -27,20 +27,22 @@
       </div>
     }
 
-    @for (j of filtered(); track j.id) {
-      <div class="player-row" [routerLink]="['/app/analisis', j.id]">
-        <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
-        <div class="player-info">
-          <div class="player-name">{{ j.nombre }}</div>
-          <div class="player-meta">
-            <span class="chip chip-gray">{{ j.posicion }}</span>
-            <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">{{ j.puntuacionPromedio }} pts</span>
-            <span class="clase-tag">{{ j.claseNombre }}</span>
+    <div class="player-rows">
+      @for (j of filtered(); track j.id) {
+        <div class="player-row" [routerLink]="['/app/analisis', j.id]">
+          <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
+          <div class="player-info">
+            <div class="player-name">{{ j.nombre }}</div>
+            <div class="player-meta">
+              <span class="chip chip-gray">{{ j.posicion }}</span>
+              <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">{{ j.puntuacionPromedio }} pts</span>
+              <span class="clase-tag">{{ j.claseNombre }}</span>
+            </div>
           </div>
+          <span class="arrow">›</span>
         </div>
-        <span class="arrow">›</span>
-      </div>
-    }
+      }
+    </div>
   </main>
 
   <app-navbar active="jugadores"/>

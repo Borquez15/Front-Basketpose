@@ -101,3 +101,34 @@
   font-size: 1.35rem;
 }
 .quick-card span { font-size: 0.82rem; font-weight: 600; text-align: center; }
+
+/* ── Responsive: Tablets (768px+) ── */
+@media (min-width: 768px) {
+  .content { padding: 24px 24px 100px; gap: 28px; }
+  .dash-header { padding: 26px 24px 22px; }
+
+  .clases-scroll { flex-wrap: wrap; overflow-x: visible; }
+  .class-card { min-width: 200px; }
+
+  .quick-grid { grid-template-columns: repeat(4, 1fr); }
+
+  .gauge { width: 120px; height: 120px; }
+  .gauge-val .val { font-size: 1.9rem; }
+
+  .tiro-num { font-size: 2.8rem; }
+}
+
+/* ── Responsive: Desktops (1024px+) ── */
+@media (min-width: 1024px) {
+  .content { padding: 28px 32px 110px; gap: 32px; }
+  .dash-header { padding: 28px 32px 24px; }
+
+  .class-card { min-width: 220px; }
+
+  .sesion-body { gap: 32px; }
+
+  .gauge { width: 130px; height: 130px; }
+  .gauge-val .val { font-size: 2rem; }
+
+  .tiro-num { font-size: 3rem; }
+}

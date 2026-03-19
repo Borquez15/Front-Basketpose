@@ -5,20 +5,7 @@ import { Clase, Jugador, Sesion, AnalisisTiro, ReporteProgreso } from '../models
 export class DataService {
 
   // ── CLASES ────────────────────────────────────────────────────────────────
-  private _clases = signal<Clase[]>([
-    { id: 1, nombre: 'Básquetbol Avanzado', descripcion: 'Grupo élite', nivel: 'Avanzado',
-      categoria: 'Adulto', lugar: 'Gimnasio Municipal', activa: true,
-      totalJugadores: 12, promedioTecnico: 85, rol: 'propietario',
-      reconocimientoFacial: true, analisisRealTime: true, reportesAutomaticos: false },
-    { id: 2, nombre: 'Equipo Juvenil', descripcion: 'Categoría sub-18', nivel: 'Intermedio',
-      categoria: 'Juvenil', lugar: 'Cancha Norte', activa: true,
-      totalJugadores: 8, promedioTecnico: 72, rol: 'auxiliar',
-      reconocimientoFacial: true, analisisRealTime: true, reportesAutomaticos: true },
-    { id: 3, nombre: 'Práctica Libre', descripcion: 'Sesiones abiertas', nivel: 'Principiante',
-      categoria: 'Mixto', lugar: 'Cancha Sur', activa: true,
-      totalJugadores: 15, promedioTecnico: 79, rol: 'jugador',
-      reconocimientoFacial: false, analisisRealTime: true, reportesAutomaticos: false },
-  ]);
+  private _clases = signal<Clase[]>([]);
   readonly clases = this._clases.asReadonly();
 
   addClass(clase: Partial<Clase>): void {
@@ -34,12 +21,7 @@ export class DataService {
   }
 
   // ── JUGADORES ─────────────────────────────────────────────────────────────
-  private _jugadores = signal<Jugador[]>([
-    { id: 1, nombre: 'Juan Pérez',      correo: 'juan@ejemplo.com',   edad: 22, estaturaCm: 185, pesoKg: 78, posicion: 'Base',    claseNombre: 'Básquetbol Avanzado', puntuacionPromedio: 85, activo: true, initials: 'JP', avatarColor: '#ff6b35' },
-    { id: 2, nombre: 'María González',  correo: 'maria@ejemplo.com',  edad: 20, estaturaCm: 172, pesoKg: 62, posicion: 'Alero',   claseNombre: 'Básquetbol Avanzado', puntuacionPromedio: 92, activo: true, initials: 'MG', avatarColor: '#8b5cf6' },
-    { id: 3, nombre: 'Carlos López',    correo: 'carlos@ejemplo.com', edad: 24, estaturaCm: 195, pesoKg: 95, posicion: 'Pivot',   claseNombre: 'Equipo Juvenil',      puntuacionPromedio: 78, activo: true, initials: 'CL', avatarColor: '#0ea5e9' },
-    { id: 4, nombre: 'Ana Martínez',    correo: 'ana@ejemplo.com',    edad: 21, estaturaCm: 168, pesoKg: 58, posicion: 'Escolta', claseNombre: 'Práctica Libre',      puntuacionPromedio: 88, activo: true, initials: 'AM', avatarColor: '#f59e0b' },
-  ]);
+  private _jugadores = signal<Jugador[]>([]);
   readonly jugadores = this._jugadores.asReadonly();
 
   addJugador(j: Partial<Jugador>): void {
@@ -55,12 +37,7 @@ export class DataService {
   }
 
   // ── ÚLTIMA SESIÓN ─────────────────────────────────────────────────────────
-  readonly ultimaSesion: Sesion = {
-    id: 1, idClase: 1, claseNombre: 'Básquetbol Avanzado',
-    fecha: new Date(), horaInicio: '10:30', totalTiros: 24,
-    totalJugadores: 4, puntuacionPromedio: 78,
-    errorMasFrecuente: 'Codo bajo (5 veces)'
-  };
+  readonly ultimaSesion: Sesion | null = null;
 
   // ── ANÁLISIS TIRO ─────────────────────────────────────────────────────────
   readonly analisisTiro: AnalisisTiro = {
