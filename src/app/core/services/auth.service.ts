@@ -3,14 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { User } from '../models/index';
-
-interface AuthResponse {
-  access_token: string;
-  user: User;
-}
+import { User, AuthResponse } from '../models/index';
 
 const TOKEN_KEY = 'basketpose_token';
+const ROL_CLASES_KEY = 'basketpose_rol_clases';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -21,32 +17,43 @@ export class AuthService {
     this._loadUserFromToken();
   }
 
-  login(correo: string, password: string): Observable<AuthResponse> {
+  login(correo: string, contrasena: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, { correo, password })
+      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, { correo, contrasena })
       .pipe(
         tap(res => {
-          localStorage.setItem(TOKEN_KEY, res.access_token);
-          this._user.set(res.user);
+          localStorage.setItem(TOKEN_KEY, res.jwt_token);
+          localStorage.setItem(ROL_CLASES_KEY, JSON.stringify(res.rol_clases));
+          this._user.set(res.usuario);
         })
       );
   }
 
-  register(nombre: string, correo: string, password: string): Observable<AuthResponse> {
+  register(nombre: string, correo: string, contrasena: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { nombre, correo, password })
+      .post<AuthResponse>(`${environment.apiUrl}/auth/registro`, { nombre, correo, contrasena })
       .pipe(
         tap(res => {
-          localStorage.setItem(TOKEN_KEY, res.access_token);
-          this._user.set(res.user);
+          localStorage.setItem(TOKEN_KEY, res.jwt_token);
+          localStorage.setItem(ROL_CLASES_KEY, JSON.stringify(res.rol_clases));
+          this._user.set(res.usuario);
         })
       );
   }
 
   logout(): void {
+    // Fire-and-forget: always clear local session regardless of backend response
+    this.http.post(`${environment.apiUrl}/auth/logout`, {}).subscribe({ error: () => {} });
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ROL_CLASES_KEY);
     this._user.set(null);
     this.router.navigate(['/auth/login']);
+  }
+
+  getProfile(): Observable<User> {
+    return this.http.get<User>(`${environment.apiUrl}/auth/profile`).pipe(
+      tap(usuario => this._user.set(usuario))
+    );
   }
 
   isLoggedIn(): boolean { return this._user() !== null; }
@@ -66,7 +73,7 @@ export class AuthService {
       if (parts.length !== 3) { localStorage.removeItem(TOKEN_KEY); return; }
       const payload = JSON.parse(atob(parts[1]));
       if (payload?.exp && payload.exp * 1000 > Date.now()) {
-        this._user.set(payload.user ?? null);
+        this._user.set(payload.user ?? payload.usuario ?? null);
       } else {
         localStorage.removeItem(TOKEN_KEY);
       }
