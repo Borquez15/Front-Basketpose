@@ -1,59 +1,152 @@
-# TesisFront
+# BasketPose Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.3.
+Frontend Angular para la plataforma de análisis de poses en baloncesto **BasketPose**.
 
-## Development server
+## 🚀 Inicio Rápido
 
-To start a local development server, run:
+### Requisitos
+- Node.js 20+
+- Angular CLI 20+
+- Backend BasketPose corriendo en `http://localhost:8000`
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Desarrollo local
 
 ```bash
-ng generate component component-name
+# 1. Instalar dependencias
+npm install
+
+# 2. Iniciar servidor de desarrollo
+npm start
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Abrir en el navegador: `http://localhost:4200`
+
+---
+
+## 🐳 Docker Compose (Recomendado)
+
+Ejecuta el frontend + backend + base de datos con un solo comando.
+
+### Prerrequisitos
+- Docker y Docker Compose instalados
+- Repositorio `basketpose-back` clonado al lado de este proyecto:
+  ```
+  tu-carpeta/
+  ├── Front-Basketpose/   ← este repo
+  └── basketpose-back/    ← repo del backend
+  ```
+
+### Pasos
 
 ```bash
-ng generate --help
+# 1. Copia el archivo de ejemplo de variables de entorno
+cp .env.example .env
+
+# 2. Edita .env con tus valores (especialmente JWT_SECRET y credenciales Google OAuth)
+nano .env
+
+# 3. Ejecuta todo junto
+docker-compose up
 ```
 
-## Building
+La aplicación estará disponible en:
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:8000
+- **Documentación API**: http://localhost:8000/docs
 
-To build the project run:
+---
+
+## ⚙️ Configuración
+
+### Variables de entorno frontend
+
+El frontend usa la variable de entorno `environment.ts` para la URL del backend:
+
+```typescript
+// src/environments/environment.ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8000/api'
+};
+```
+
+Para cambiar la URL del backend en desarrollo, edita `src/environments/environment.ts`.
+
+### Variables de entorno del backend (.env)
+
+Crea un archivo `.env` basado en `.env.example`:
+
+| Variable | Descripción | Ejemplo |
+|---|---|---|
+| `DB_USER` | Usuario MySQL | `root` |
+| `DB_PASSWORD` | Contraseña MySQL | `mi_contraseña` |
+| `DB_HOST` | Host de MySQL | `localhost` |
+| `DB_NAME` | Nombre de la base de datos | `basketpose` |
+| `JWT_SECRET` | Clave secreta JWT | `una_clave_muy_segura_123` |
+| `GOOGLE_CLIENT_ID` | ID de cliente Google OAuth | `xxx.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Secreto de cliente Google OAuth | `GOCSPX-xxx` |
+
+---
+
+## 🏗️ Arquitectura del Frontend
+
+```
+src/app/
+├── core/
+│   ├── guards/
+│   │   └── auth.guard.ts          ← Protege rutas autenticadas
+│   ├── interceptors/
+│   │   └── auth.interceptor.ts    ← Agrega JWT a cada petición
+│   ├── models/
+│   │   └── index.ts               ← Interfaces TypeScript
+│   └── services/
+│       ├── auth.service.ts        ← Login, Registro, Logout
+│       └── data.service.ts        ← Clases, Jugadores, Sesiones, Análisis
+├── features/
+│   ├── auth/
+│   │   ├── login/                 ← Página de login
+│   │   └── register/              ← Página de registro
+│   ├── dashboard/                 ← Dashboard principal
+│   ├── classes/                   ← Gestión de clases
+│   ├── players/                   ← Gestión de jugadores
+│   ├── session/                   ← Sesiones en vivo + análisis
+│   └── reports/                   ← Reportes de progreso
+└── shared/
+    └── components/
+        └── navbar/                ← Barra de navegación
+```
+
+## 🔌 Endpoints del Backend Conectados
+
+| Servicio | Método | Endpoint | Descripción |
+|---|---|---|---|
+| **AuthService** | POST | `/api/auth/login` | Iniciar sesión |
+| | POST | `/api/auth/registro` | Crear cuenta |
+| | POST | `/api/auth/logout` | Cerrar sesión |
+| | GET | `/api/auth/profile` | Obtener perfil |
+| **DataService** | GET | `/api/clases/mis-clases` | Mis clases |
+| | POST | `/api/clases` | Crear clase |
+| | GET | `/api/clases/:id` | Detalle de clase |
+| | GET | `/api/jugadores` | Listar jugadores |
+| | POST | `/api/jugadores` | Registrar jugador |
+| | GET | `/api/sesiones` | Listar sesiones |
+| | POST | `/api/sesiones` | Crear sesión |
+| | GET | `/api/sesiones/:id/analisis` | Análisis de sesión |
+| | GET | `/api/jugadores/:id/reporte` | Reporte de progreso |
+
+---
+
+## 🧪 Testing
 
 ```bash
-ng build
+npm test
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## 🏭 Build de producción
 
 ```bash
-ng test
+npm run build
 ```
 
-## Running end-to-end tests
+Los archivos compilados quedan en `dist/tesis-front/browser/`.
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

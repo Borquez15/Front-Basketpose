@@ -11,7 +11,7 @@ export class DataService {
 
   // ── CLASES ────────────────────────────────────────────────────────────────
   getClases(): Observable<Clase[]> {
-    return this.http.get<Clase[]>(`${environment.apiUrl}/clases`);
+    return this.http.get<Clase[]>(`${environment.apiUrl}/clases/mis-clases`);
   }
 
   getClase(id: number): Observable<Clase> {
@@ -32,7 +32,7 @@ export class DataService {
 
   // ── JUGADORES ─────────────────────────────────────────────────────────────
   getJugadores(claseId?: number): Observable<Jugador[]> {
-    const params = claseId ? { claseId: String(claseId) } : undefined;
+    const params = claseId ? { id_clase: String(claseId) } : undefined;
     return this.http.get<Jugador[]>(`${environment.apiUrl}/jugadores`, { params });
   }
 
@@ -50,7 +50,7 @@ export class DataService {
 
   // ── SESIONES ──────────────────────────────────────────────────────────────
   getSesiones(claseId?: number): Observable<Sesion[]> {
-    const params = claseId ? { claseId: String(claseId) } : undefined;
+    const params = claseId ? { id_clase: String(claseId) } : undefined;
     return this.http.get<Sesion[]>(`${environment.apiUrl}/sesiones`, { params });
   }
 

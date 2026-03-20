@@ -25,8 +25,10 @@ export class ClassListComponent {
   }
 
   rolChip(rol: string) {
-    if (rol === 'propietario') return 'chip chip-gold';
-    if (rol === 'auxiliar')   return 'chip chip-blue';
+    if (rol === 'propietario')   return 'chip chip-gold';
+    if (rol === 'administrador') return 'chip chip-gold';
+    if (rol === 'entrenador')    return 'chip chip-blue';
+    if (rol === 'auxiliar')      return 'chip chip-blue';
     return 'chip chip-green';
   }
 }

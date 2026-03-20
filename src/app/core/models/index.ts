@@ -8,6 +8,19 @@ export interface User {
   fechaRegistro: Date;
 }
 
+// src/app/core/models/auth.model.ts
+export interface RolClase {
+  id_clase: number;
+  nombre_clase: string;
+  rol: 'propietario' | 'administrador' | 'entrenador' | 'jugador';
+}
+
+export interface AuthResponse {
+  jwt_token: string;
+  usuario: User;
+  rol_clases: RolClase[];
+}
+
 // src/app/core/models/clase.model.ts
 export interface Clase {
   id: number;
@@ -19,7 +32,7 @@ export interface Clase {
   activa: boolean;
   totalJugadores: number;
   promedioTecnico: number;
-  rol: 'propietario' | 'auxiliar' | 'jugador';
+  rol: 'propietario' | 'administrador' | 'entrenador' | 'auxiliar' | 'jugador';
   reconocimientoFacial: boolean;
   analisisRealTime: boolean;
   reportesAutomaticos: boolean;
