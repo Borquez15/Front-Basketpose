@@ -32,9 +32,20 @@ export class AuthService {
       );
   }
 
-  register(nombre: string, correo: string, password: string): Observable<AuthResponse> {
+  register(nombre: string, ap_p: string, ap_m: string, correo: string, password: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { nombre, correo, password })
+      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { nombre, ap_p, ap_m, correo, password })
+      .pipe(
+        tap(res => {
+          localStorage.setItem(TOKEN_KEY, res.access_token);
+          this._user.set(res.user);
+        })
+      );
+  }
+
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${environment.apiUrl}/auth/firebase`, { idToken })
       .pipe(
         tap(res => {
           localStorage.setItem(TOKEN_KEY, res.access_token);
