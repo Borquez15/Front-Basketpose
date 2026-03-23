@@ -12,6 +12,8 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class RegisterComponent {
   nombre    = '';
+  ap_p      = '';
+  ap_m      = '';
   correo    = '';
   password  = '';
   confirm   = '';
@@ -21,15 +23,15 @@ export class RegisterComponent {
   constructor(private auth: AuthService, private router: Router) {}
 
   submit() {
-    if (!this.nombre || !this.correo || !this.password) {
-      this.error.set('Todos los campos son obligatorios.'); return;
+    if (!this.nombre || !this.ap_p || !this.correo || !this.password) {
+      this.error.set('Todos los campos obligatorios deben estar completos.'); return;
     }
     if (this.password !== this.confirm) {
       this.error.set('Las contraseñas no coinciden.'); return;
     }
     this.loading.set(true);
     this.error.set('');
-    this.auth.register(this.nombre, this.correo, this.password).subscribe({
+    this.auth.register(this.nombre, this.ap_p, this.ap_m, this.correo, this.password).subscribe({
       next: () => this.router.navigate(['/app/dashboard']),
       error: () => {
         this.error.set('Error al crear la cuenta. Intenta de nuevo.');

@@ -10,13 +10,19 @@
       @if (error()) {
         <div class="error-msg">{{ error() }}</div>
       }
-      <div class="field"><label>Nombre completo *</label><input type="text" placeholder="Tu nombre completo" [(ngModel)]="nombre"/></div>
+      <div class="field"><label>Nombre *</label><input type="text" placeholder="Tu nombre" [(ngModel)]="nombre"/></div>
+      <div class="form-grid">
+        <div class="field"><label>Primer apellido *</label><input type="text" placeholder="Apellido paterno" [(ngModel)]="ap_p"/></div>
+        <div class="field"><label>Segundo apellido</label><input type="text" placeholder="Apellido materno" [(ngModel)]="ap_m"/></div>
+      </div>
       <div class="field"><label>Correo electrónico *</label><input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="correo"/></div>
       <div class="form-grid">
         <div class="field"><label>Contraseña *</label><input type="password" placeholder="••••••••" [(ngModel)]="password"/></div>
         <div class="field"><label>Confirmar *</label><input type="password" placeholder="••••••••" [(ngModel)]="confirm"/></div>
       </div>
-      <button class="btn btn-primary btn-full" (click)="submit()">Registrarse</button>
+      <button class="btn btn-primary btn-full" [disabled]="loading()" (click)="submit()">
+        {{ loading() ? 'Creando cuenta…' : 'Registrarse' }}
+      </button>
       <button class="btn btn-ghost btn-full" routerLink="/auth/login">← Volver al inicio</button>
     </div>
   </div>
