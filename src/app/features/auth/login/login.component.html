@@ -27,13 +27,15 @@
         </div>
       </div>
 
-      <button class="btn btn-primary btn-full" (click)="submit()">
-        Iniciar sesión
+      <button class="btn btn-primary btn-full" [disabled]="loading()" (click)="submit()">
+        {{ loading() ? 'Iniciando…' : 'Iniciar sesión' }}
       </button>
 
       <a class="forgot">¿Olvidaste tu contraseña?</a>
 
       <div class="or-divider">o</div>
+
+      <div id="google-signin-btn"></div>
 
       <button class="btn btn-outline btn-full" routerLink="/auth/register">
         Crear cuenta nueva
