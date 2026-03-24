@@ -21,30 +21,82 @@
     </div>
 
     <div class="form-col">
-      <div class="field"><label>Nombre completo *</label><input type="text" placeholder="Nombre del jugador" [(ngModel)]="nombre"/></div>
-      <div class="field"><label>Correo electrónico</label><input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="correo"/></div>
+
+      <!-- CURP lookup -->
+      <div class="curp-section">
+        <div class="field">
+          <label>Buscar por CURP (Opcional)</label>
+          <div class="curp-row">
+            <input type="text" placeholder="AAAA000000XXXXXXX0" [(ngModel)]="curp"
+                   (keyup.enter)="buscarCurp()" style="text-transform:uppercase;"/>
+            <button class="btn btn-outline btn-sm" (click)="buscarCurp()" [disabled]="curpLoading()">
+              {{ curpLoading() ? '⏳' : '🔍 Buscar' }}
+            </button>
+          </div>
+        </div>
+        @if (curpMsg()) {
+          <div class="curp-msg" [class.found]="curpFound()">{{ curpMsg() }}</div>
+        }
+      </div>
+
+      <!-- Player data -->
+      <div class="field">
+        <label>Nombre completo *</label>
+        <input type="text" placeholder="Nombre del jugador" [(ngModel)]="nombre"/>
+      </div>
+
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="correo"/>
+      </div>
+
       <div class="form-grid">
-        <div class="field"><label>Edad</label><input type="number" placeholder="18" [(ngModel)]="edad"/></div>
-        <div class="field"><label>Posición</label>
-          <select [(ngModel)]="posicion">
-            <option>Base</option><option>Escolta</option><option>Alero</option><option>Ala-Pivot</option><option>Pivot</option>
-          </select>
+        <div class="field">
+          <label>Edad</label>
+          <input type="number" placeholder="18" [(ngModel)]="edad"/>
+        </div>
+        <div class="field">
+          <label>N° Camiseta</label>
+          <input type="text" placeholder="ej. 23" [(ngModel)]="numeroCamiseta"/>
         </div>
       </div>
-      <div class="form-grid">
-        <div class="field"><label>Estatura (cm)</label><input type="number" placeholder="180" [(ngModel)]="estatura"/></div>
-        <div class="field"><label>Peso (kg)</label><input type="number" placeholder="75" [(ngModel)]="peso"/></div>
+
+      <div class="field">
+        <label>Posición</label>
+        <select [(ngModel)]="posicion">
+          <option>Base</option>
+          <option>Escolta</option>
+          <option>Alero</option>
+          <option>Ala-Pivot</option>
+          <option>Pivot</option>
+        </select>
       </div>
-      <div class="field"><label>Clase</label>
-        <select [(ngModel)]="claseNombre">
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Estatura (cm)</label>
+          <input type="number" placeholder="180" [(ngModel)]="estatura"/>
+        </div>
+        <div class="field">
+          <label>Peso (kg)</label>
+          <input type="number" placeholder="75" [(ngModel)]="peso"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Clase *</label>
+        <select [(ngModel)]="claseId">
+          <option [ngValue]="null" disabled>Selecciona una clase</option>
           @for (c of clases(); track c.id) {
-            <option [value]="c.nombre">{{ c.nombre }}</option>
+            <option [ngValue]="c.id">{{ c.nombre }}</option>
           }
         </select>
       </div>
 
       <hr class="divider"/>
-      <button class="btn btn-primary btn-full" style="padding:14px;" (click)="guardar()">Guardar jugador</button>
+      <button class="btn btn-primary btn-full" style="padding:14px;" (click)="guardar()">
+        Guardar jugador
+      </button>
       <button class="btn btn-ghost btn-full" routerLink="/app/jugadores">Cancelar</button>
     </div>
   </main>

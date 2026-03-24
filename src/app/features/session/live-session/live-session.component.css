@@ -1,7 +1,46 @@
 /* live-session.component.css – BasketPose dark theme */
 .live-page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--bg); }
 
-/* Live header */
+/* ── Setup screen ── */
+.setup-screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+}
+.setup-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.setup-header h2 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.setup-header p  { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+.setup-body {
+  flex: 1;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+.setup-btn { padding: 14px !important; margin-top: 8px; }
+
+.error-msg {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.3);
+  color: var(--red);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+
+/* ── Live header ── */
 .live-header {
   display: flex;
   align-items: center;
@@ -52,6 +91,10 @@
   background: rgba(0,0,0,.3);
   padding: 4px 12px;
   border-radius: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
 }
 
 /* Bottom panel */

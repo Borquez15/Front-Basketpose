@@ -1,13 +1,73 @@
 <div class="live-page fade-in">
 
+  <!-- ══════════════════════════════════════
+       SETUP SCREEN (before session starts)
+  ══════════════════════════════════════ -->
+  @if (!sessionStarted()) {
+  <div class="setup-screen">
+    <header class="setup-header">
+      <button class="btn-icon" routerLink="/app/dashboard">←</button>
+      <div>
+        <h2>Nueva Sesión</h2>
+        <p>Configura los datos antes de comenzar</p>
+      </div>
+    </header>
+
+    <div class="setup-body">
+      @if (setupError()) {
+        <div class="error-msg">{{ setupError() }}</div>
+      }
+
+      <div class="field">
+        <label>Título de la sesión *</label>
+        <input type="text" placeholder="ej. Entrenamiento martes, Práctica tiros libres…"
+               [(ngModel)]="titulo"/>
+      </div>
+
+      <div class="field">
+        <label>Descripción</label>
+        <textarea rows="3" placeholder="Observaciones o plan del entrenamiento…"
+                  [(ngModel)]="descripcion" style="resize:none;"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Clase *</label>
+        <select [(ngModel)]="claseId">
+          <option [ngValue]="null" disabled>Selecciona una clase</option>
+          @for (c of clases(); track c.id) {
+            <option [ngValue]="c.id">{{ c.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Duración estimada (min)</label>
+        <input type="number" placeholder="90" [(ngModel)]="duracionMin"/>
+      </div>
+
+      <button class="btn btn-primary btn-full setup-btn"
+              [disabled]="saving()"
+              (click)="iniciarSesion()">
+        {{ saving() ? 'Iniciando…' : '▶ Iniciar sesión en vivo' }}
+      </button>
+      <button class="btn btn-ghost btn-full" routerLink="/app/dashboard">Cancelar</button>
+    </div>
+  </div>
+  }
+
+  <!-- ══════════════════════════════════════
+       LIVE SESSION SCREEN
+  ══════════════════════════════════════ -->
+  @if (sessionStarted()) {
+
   <!-- Top bar -->
   <header class="live-header">
-    <button class="btn-icon" routerLink="/app/dashboard">←</button>
+    <button class="btn-icon" (click)="finalizarSesion()">←</button>
     <div class="live-center">
       <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
       <span class="timer">{{ timerDisplay }}</span>
     </div>
-    <button class="btn btn-danger btn-sm" routerLink="/app/dashboard">Finalizar</button>
+    <button class="btn btn-danger btn-sm" (click)="finalizarSesion()">Finalizar</button>
   </header>
 
   <!-- Pose / Camera area -->
@@ -33,7 +93,7 @@
       <circle cx="125" cy="270" r="7" fill="#ff6b35"/>
       <circle cx="155" cy="20" r="14" fill="none" stroke="#ff8c5a" stroke-width="3"/>
     </svg>
-    <span class="pose-label">Vista de cámara</span>
+    <span class="pose-label">Vista de cámara · {{ titulo }}</span>
   </div>
 
   <!-- Panel inferior -->
@@ -68,4 +128,5 @@
     <div class="stat-cell"><div class="lbl">Promedio</div><div class="val orange">{{ stats.promedio }}</div></div>
   </div>
 
+  } <!-- end sessionStarted -->
 </div>

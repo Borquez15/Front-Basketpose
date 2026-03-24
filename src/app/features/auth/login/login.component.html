@@ -22,7 +22,8 @@
         <div class="input-icon">
           <input [type]="showPass() ? 'text' : 'password'"
                  placeholder="••••••••"
-                 [(ngModel)]="password"/>
+                 [(ngModel)]="password"
+                 (keyup.enter)="submit()"/>
           <span class="eye" (click)="togglePass()">{{ showPass() ? '🙈' : '👁' }}</span>
         </div>
       </div>
@@ -33,9 +34,10 @@
 
       <a class="forgot">¿Olvidaste tu contraseña?</a>
 
-      <div class="or-divider">o</div>
-
-      <div id="google-signin-btn"></div>
+      @if (googleReady()) {
+        <div class="or-divider">o</div>
+        <div id="google-signin-btn"></div>
+      }
 
       <button class="btn btn-outline btn-full" routerLink="/auth/register">
         Crear cuenta nueva

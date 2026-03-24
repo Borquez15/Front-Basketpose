@@ -33,6 +33,29 @@
 .face-avatar { font-size: 2.8rem; }
 .face-box p  { font-size: 0.75rem; color: var(--muted); text-align: center; line-height: 1.5; }
 
+/* CURP section */
+.curp-section { display: flex; flex-direction: column; gap: 8px; }
+
+.curp-row {
+  display: flex;
+  gap: 8px;
+}
+.curp-row input { flex: 1; }
+
+.curp-msg {
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+.curp-msg.found {
+  color: var(--green);
+  background: rgba(16,185,129,.08);
+  border-color: rgba(16,185,129,.3);
+}
+
 .error-msg {
   background: rgba(239,68,68,.12);
   border: 1px solid rgba(239,68,68,.3);

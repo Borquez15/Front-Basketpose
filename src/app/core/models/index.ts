@@ -1,4 +1,6 @@
-// src/app/core/models/user.model.ts
+// src/app/core/models/index.ts
+
+// ── USUARIO ─────────────────────────────────────────────────────────
 export interface User {
   id: number;
   nombre: string;
@@ -8,7 +10,7 @@ export interface User {
   fechaRegistro: Date;
 }
 
-// src/app/core/models/clase.model.ts
+// ── CLASE ───────────────────────────────────────────────────────────
 export interface Clase {
   id: number;
   nombre: string;
@@ -25,10 +27,11 @@ export interface Clase {
   reportesAutomaticos: boolean;
 }
 
-// src/app/core/models/jugador.model.ts
+// ── JUGADOR ─────────────────────────────────────────────────────────
 export interface Jugador {
   id: number;
   idUsuario?: number;
+  curp?: string; 
   nombre: string;
   correo?: string;
   edad?: number;
@@ -42,7 +45,7 @@ export interface Jugador {
   avatarColor?: string;
 }
 
-// src/app/core/models/sesion.model.ts
+// ── SESION ──────────────────────────────────────────────────────────
 export interface Sesion {
   id: number;
   idClase: number;
@@ -58,7 +61,7 @@ export interface Sesion {
   observaciones?: string;
 }
 
-// src/app/core/models/analisis.model.ts
+// ── ANÁLISIS DE TIRO ────────────────────────────────────────────────
 export interface AnguloDetectado {
   nombre: string;
   valor: number;
@@ -85,10 +88,22 @@ export interface AnalisisTiro {
   errores: ErrorDetectado[];
 }
 
-// src/app/core/models/reporte.model.ts
-export interface PuntoEvolucion { fecha: string; puntuacion: number; }
-export interface ErrorFrecuente  { nombre: string; count: number; }
-export interface Recomendacion   { icono: string; titulo: string; descripcion: string; }
+// ── REPORTE DE PROGRESO ─────────────────────────────────────────────
+export interface PuntoEvolucion { 
+  fecha: string; 
+  puntuacion: number; 
+}
+
+export interface ErrorFrecuente { 
+  nombre: string; 
+  count: number; 
+}
+
+export interface Recomendacion { 
+  icono: string; 
+  titulo: string; 
+  descripcion: string; 
+}
 
 export interface ReporteProgreso {
   jugadorNombre: string;

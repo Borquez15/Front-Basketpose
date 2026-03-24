@@ -1,17 +1,37 @@
 // live-session.component.ts
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterLink, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DataService } from '../../../core/services/data.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-live-session',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FormsModule],
   templateUrl: './live-session.component.html',
   styleUrls: ['./live-session.component.css']
 })
 export class LiveSessionComponent implements OnInit, OnDestroy {
-  data    = inject(DataService);
+  data   = inject(DataService);
+  http   = inject(HttpClient);
+  router = inject(Router);
+  clases = toSignal(this.data.getClases(), { initialValue: [] });
+
+  // Setup form (shown before starting)
+  sessionStarted = signal(false);
+  setupError     = signal('');
+  saving         = signal(false);
+
+  // Setup fields
+  titulo       = '';
+  descripcion  = '';
+  claseId: number | null = null;
+  duracionMin: number | null = 90;
+
+  // Live session state
   seconds = signal(0);
   private interval: ReturnType<typeof setInterval> | null = null;
 
@@ -29,12 +49,53 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
 
   stats = { tiros: 18, jugadores: 3, promedio: 82 };
 
-  ngOnInit()    { this.interval = setInterval(() => this.seconds.update(s => s + 1), 1000); }
-  ngOnDestroy() { if (this.interval) clearInterval(this.interval); }
+  ngOnInit()    { /* wait for user to start session */ }
+  ngOnDestroy() { this._stopTimer(); }
+
+  private _stopTimer() {
+    if (this.interval) { clearInterval(this.interval); this.interval = null; }
+  }
+
+  iniciarSesion() {
+    if (!this.titulo.trim()) { this.setupError.set('El título es obligatorio.'); return; }
+    if (!this.claseId)       { this.setupError.set('Selecciona una clase.'); return; }
+
+    this.saving.set(true);
+    this.setupError.set('');
+
+    const payload = {
+      id_clase:     this.claseId,
+      titulo:       this.titulo.trim(),
+      descripcion:  this.descripcion.trim() || null,
+      fecha_sesion: new Date().toISOString().split('T')[0],
+      duracion_min: this.duracionMin ?? 90,
+    };
+
+    this.http.post(`${environment.apiUrl}/sesiones`, payload).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.sessionStarted.set(true);
+        this.seconds.set(0);
+        this.interval = setInterval(() => this.seconds.update(s => s + 1), 1000);
+      },
+      error: (err) => {
+        this.saving.set(false);
+        const msg = err?.error?.detail || 'Error al crear la sesión. Intenta de nuevo.';
+        this.setupError.set(msg);
+      }
+    });
+  }
+
+  finalizarSesion() {
+    this._stopTimer();
+    this.router.navigate(['/app/dashboard']);
+  }
 
   get timerDisplay(): string {
     const s = this.seconds();
-    return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    const mm = String(Math.floor(s / 60)).padStart(2, '0');
+    const ss = String(s % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
   }
 
   estadoColor(e: string): string {

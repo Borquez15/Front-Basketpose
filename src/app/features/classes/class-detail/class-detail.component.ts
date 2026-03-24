@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { switchMap, filter, map } from 'rxjs'; // <-- Importa filter y map
 import { DataService } from '../../../core/services/data.service';
 import { Jugador } from '../../../core/models/index';
 
@@ -18,12 +18,22 @@ export class ClassDetailComponent {
   activeTab     = signal(0);
   codeCopied    = signal(false);
 
+  // Solución para evitar enviar NaN al backend
   clase = toSignal(
-    this.route.paramMap.pipe(switchMap(p => this.data.getClase(+p.get('id')!)))
+    this.route.paramMap.pipe(
+      map(p => Number(p.get('id'))),
+      filter(id => !isNaN(id) && id > 0), // Filtra si no es un número válido
+      switchMap(id => this.data.getClase(id))
+    )
   );
 
+  // Lo mismo para los jugadores
   jugadores = toSignal(
-    this.route.paramMap.pipe(switchMap(p => this.data.getJugadores(+p.get('id')!))),
+    this.route.paramMap.pipe(
+      map(p => Number(p.get('id'))),
+      filter(id => !isNaN(id) && id > 0),
+      switchMap(id => this.data.getJugadores(id))
+    ),
     { initialValue: [] as Jugador[] }
   );
 
