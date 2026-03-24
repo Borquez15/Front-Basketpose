@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth.service';
 import { DataService } from '../../core/services/data.service';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
@@ -15,7 +16,7 @@ import { TitleCasePipe } from '../../shared/pipes/titlecase.pipe';
 export class ProfileComponent {
   auth           = inject(AuthService);
   data           = inject(DataService);
-  clases         = this.data.clases;
+  clases         = toSignal(this.data.getClases(), { initialValue: [] });
   notificaciones = signal(true);
   faceUpdated    = signal(false);
 

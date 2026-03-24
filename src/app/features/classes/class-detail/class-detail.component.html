@@ -1,14 +1,21 @@
 <div class="page fade-in">
+  @if (clase(); as c) {
   <header class="topbar">
     <div class="topbar-left">
       <button class="btn-icon" routerLink="/app/clases">←</button>
       <div>
-        <h2>{{ clase.nombre }}</h2>
-        <p>{{ clase.totalJugadores }} jugadores activos</p>
+        <h2>{{ c.nombre }}</h2>
+        <p>{{ c.totalJugadores }} jugadores activos</p>
       </div>
     </div>
     <button class="btn btn-primary btn-sm" routerLink="/app/sesion">▶ Sesión</button>
   </header>
+  } @else {
+  <header class="topbar">
+    <button class="btn-icon" routerLink="/app/clases">←</button>
+    <h2>Cargando...</h2>
+  </header>
+  }
 
   <!-- Tabs -->
   <div class="tabs-wrap">

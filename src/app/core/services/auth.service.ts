@@ -5,7 +5,7 @@ import { Observable, tap } from 'rxjs';
 import { User } from '../models/index';
 import { environment } from '../../../environments/environment';
 
-const TOKEN_KEY = 'access_token';
+const TOKEN_KEY = 'basketpose_token';
 
 interface AuthResponse {
   access_token: string;
@@ -17,7 +17,9 @@ export class AuthService {
   private _user = signal<User | null>(null);
   readonly user = this._user.asReadonly();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    this._loadUserFromToken();
+  }
 
   login(correo: string, password: string): Observable<AuthResponse> {
     return this.http
@@ -69,5 +71,22 @@ export class AuthService {
   getInitials(): string {
     const name = this._user()?.nombre ?? '';
     return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  private _loadUserFromToken(): void {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return;
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) { localStorage.removeItem(TOKEN_KEY); return; }
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload?.exp && payload.exp * 1000 > Date.now()) {
+        this._user.set(payload.user ?? null);
+      } else {
+        localStorage.removeItem(TOKEN_KEY);
+      }
+    } catch {
+      localStorage.removeItem(TOKEN_KEY);
+    }
   }
 }

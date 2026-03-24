@@ -18,6 +18,7 @@ export class LoginComponent implements OnInit {
   password  = '';
   showPass  = signal(false);
   error     = signal('');
+  loading   = signal(false);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -41,11 +42,27 @@ export class LoginComponent implements OnInit {
       this.error.set('Por favor completa todos los campos.');
       return;
     }
-    if (this.auth.login(this.correo, this.password)) {
-      this.router.navigate(['/app/dashboard']);
-    } else {
-      this.error.set('Correo o contraseña incorrectos.');
-    }
+    this.loading.set(true);
+    this.error.set('');
+    this.auth.login(this.correo, this.password).subscribe({
+      next: () => this.router.navigate(['/app/dashboard']),
+      error: () => {
+        this.error.set('Correo o contraseña incorrectos.');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  private _handleGoogleCredential(response: { credential: string }): void {
+    this.loading.set(true);
+    this.error.set('');
+    this.auth.loginWithGoogle(response.credential).subscribe({
+      next: () => this.router.navigate(['/app/dashboard']),
+      error: () => {
+        this.error.set('No se pudo iniciar sesión con Google. Intenta de nuevo.');
+        this.loading.set(false);
+      }
+    });
   }
 
   private _handleGoogleCredential(response: { credential: string }): void {

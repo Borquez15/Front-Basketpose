@@ -2,6 +2,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { DataService } from '../../../core/services/data.service';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 import { TitleCasePipe } from '../../../shared/pipes/titlecase.pipe';
@@ -14,11 +15,11 @@ import { TitleCasePipe } from '../../../shared/pipes/titlecase.pipe';
   styleUrls: ['./class-list.component.css']
 })
 export class ClassListComponent {
-  data    = inject(DataService);
-  clases  = this.data.clases;
-  search  = signal('');
+  data   = inject(DataService);
+  clases = toSignal(this.data.getClases(), { initialValue: [] });
+  search = signal('');
 
-  get filtered() {
+  filtered() {
     const q = this.search().toLowerCase();
     return this.clases().filter(c => c.nombre.toLowerCase().includes(q));
   }

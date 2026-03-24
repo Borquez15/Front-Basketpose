@@ -7,12 +7,13 @@
   </header>
 
   <main class="content">
+    @if (reporte(); as r) {
     <!-- Player -->
     <div class="player-header">
-      <div class="avatar avatar-lg" [style.background]="reporte.jugadorAvatarColor">{{ reporte.jugadorInitials }}</div>
+      <div class="avatar avatar-lg" [style.background]="r.jugadorAvatarColor">{{ r.jugadorInitials }}</div>
       <div>
-        <div class="player-name">{{ reporte.jugadorNombre }}</div>
-        <div class="player-sub">{{ reporte.jugadorPosicion }}</div>
+        <div class="player-name">{{ r.jugadorNombre }}</div>
+        <div class="player-sub">{{ r.jugadorPosicion }}</div>
       </div>
     </div>
 
@@ -25,9 +26,9 @@
 
     <!-- Metrics -->
     <div class="metrics-row">
-      <div class="metric-card"><div class="metric-lbl">Total tiros</div><div class="metric-val">{{ reporte.totalTiros }}</div></div>
-      <div class="metric-card"><div class="metric-lbl">Sesiones</div><div class="metric-val">{{ reporte.totalSesiones }}</div></div>
-      <div class="metric-card"><div class="metric-lbl">Promedio</div><div class="metric-val orange">{{ reporte.puntuacionPromedio }}</div></div>
+      <div class="metric-card"><div class="metric-lbl">Total tiros</div><div class="metric-val">{{ r.totalTiros }}</div></div>
+      <div class="metric-card"><div class="metric-lbl">Sesiones</div><div class="metric-val">{{ r.totalSesiones }}</div></div>
+      <div class="metric-card"><div class="metric-lbl">Promedio</div><div class="metric-val orange">{{ r.puntuacionPromedio }}</div></div>
     </div>
 
     <!-- Line chart -->
@@ -45,15 +46,15 @@
         <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
         <polygon [attr.points]="areaPoints" fill="url(#areaGrad)"/>
         <polyline [attr.points]="chartPoints" fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-        @for (e of reporte.evolucion; track e.fecha; let i = $index) {
+        @for (e of r.evolucion; track e.fecha; let i = $index) {
           <circle
-            [attr.cx]="(i / (reporte.evolucion.length - 1)) * 300"
+            [attr.cx]="(i / (r.evolucion.length - 1)) * 300"
             [attr.cy]="100 - ((e.puntuacion - 70) / 30) * 85"
             r="4" fill="var(--orange)"/>
         }
-        @for (e of reporte.evolucion; track e.fecha; let i = $index) {
-          @if (i === 0 || i === reporte.evolucion.length - 1 || i % 2 === 0) {
-            <text [attr.x]="(i / (reporte.evolucion.length - 1)) * 300" y="115" fill="#8892b0" font-size="9" text-anchor="middle">{{ e.fecha }}</text>
+        @for (e of r.evolucion; track e.fecha; let i = $index) {
+          @if (i === 0 || i === r.evolucion.length - 1 || i % 2 === 0) {
+            <text [attr.x]="(i / (r.evolucion.length - 1)) * 300" y="115" fill="#8892b0" font-size="9" text-anchor="middle">{{ e.fecha }}</text>
           }
         }
       </svg>
@@ -63,7 +64,7 @@
     <div class="chart-wrap" style="margin-top:12px;">
       <div class="chart-title">Errores más frecuentes</div>
       <div class="bar-chart">
-        @for (e of reporte.erroresFrecuentes; track e.nombre) {
+        @for (e of r.erroresFrecuentes; track e.nombre) {
           <div class="bar-row">
             <span class="bar-label">{{ e.nombre }}</span>
             <div class="bar-track">
@@ -77,14 +78,20 @@
 
     <!-- Recommendations -->
     <div class="rec-title">Recomendaciones</div>
-    @for (r of reporte.recomendaciones; track r.titulo) {
+    @for (rec of r.recomendaciones; track rec.titulo) {
       <div class="rec-card">
-        <div class="rec-icon">{{ r.icono }}</div>
+        <div class="rec-icon">{{ rec.icono }}</div>
         <div>
-          <div class="rec-name">{{ r.titulo }}</div>
-          <div class="rec-desc">{{ r.descripcion }}</div>
+          <div class="rec-name">{{ rec.titulo }}</div>
+          <div class="rec-desc">{{ rec.descripcion }}</div>
         </div>
       </div>
+    }
+    } @else {
+    <div class="empty-state">
+      <div class="icon">📊</div>
+      <p>Cargando reporte...</p>
+    </div>
     }
   </main>
 

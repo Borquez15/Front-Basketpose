@@ -28,13 +28,15 @@ export class CreateClassComponent {
 
   guardar() {
     if (!this.nombre.trim()) { this.error.set('El nombre es obligatorio.'); return; }
-    this.data.addClass({
+    this.data.createClase({
       nombre: this.nombre, descripcion: this.descripcion,
       nivel: this.nivel, categoria: this.categoria, lugar: this.lugar,
       reconocimientoFacial: this.reconocimientoFacial(),
       analisisRealTime: this.analisisRealTime(),
       reportesAutomaticos: this.reportesAutomaticos(),
+    }).subscribe({
+      next: () => this.router.navigate(['/app/clases']),
+      error: () => this.error.set('Error al crear la clase. Intenta de nuevo.')
     });
-    this.router.navigate(['/app/clases']);
   }
 }
