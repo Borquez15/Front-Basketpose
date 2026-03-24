@@ -1,28 +1,31 @@
 <div class="dashboard fade-in">
 
-  <!-- Header -->
   <header class="dash-header">
-    <div>
+    <div class="header-titles">
       <h2>Hola, {{ nombreUsuario }} 👋</h2>
       <p>Bienvenido de vuelta</p>
     </div>
+
+    <app-navbar active="dashboard" class="main-nav"></app-navbar>
+
     <div class="avatar avatar-lg" routerLink="/app/perfil" style="cursor:pointer;">{{ initials }}</div>
   </header>
 
   <main class="content">
 
-    <!-- Mis Clases -->
     <div class="section-title">
       <h3>Mis Clases</h3>
       <a routerLink="/app/clases">Ver todas</a>
     </div>
 
-    <div class="scroll-x clases-scroll">
+    <div class="clases-scroll">
       @for (clase of clases(); track clase.id) {
         <div class="class-card">
-          <h4>{{ clase.nombre }}</h4>
-          <p>{{ clase.totalJugadores }} jugadores</p>
-          <button class="btn btn-primary btn-sm" routerLink="/app/sesion">▶ Iniciar sesión</button>
+          <div class="card-info">
+            <h4>{{ clase.nombre }}</h4>
+            <p>{{ clase.totalJugadores }} jugadores</p>
+          </div>
+          <button class="btn btn-primary btn-full" routerLink="/app/sesion">Iniciar sesión</button>
         </div>
       }
       <div class="class-card new-card" routerLink="/app/clases/nueva">
@@ -31,74 +34,67 @@
       </div>
     </div>
 
-    <hr class="divider"/>
+    <div class="card sesion-card-wide mt-4">
+      <div class="sesion-header">
+        <h3>Última Sesión</h3>
+        @if (sesion) {
+          <span class="date-badge">Hoy, {{ sesion.horaInicio }}</span>
+        }
+      </div>
 
-    <!-- Última Sesión -->
-    <div class="section-title">
-      <h3>Última Sesión</h3>
       @if (sesion) {
-        <span class="date-badge">{{ sesion.fecha | date:'dd/MM/yyyy' }} {{ sesion.horaInicio }}</span>
+        <div class="sesion-body-wide">
+          <div class="sesion-left">
+            <div class="stat-group">
+              <span class="tiro-label">Total de tiros</span>
+              <span class="tiro-num">{{ sesion.totalTiros }}</span>
+            </div>
+            <div class="stat-group mt-auto" style="margin-top: 24px;">
+              <span class="tiro-label">Error más frecuente</span>
+              <span class="chip chip-yellow" style="width: fit-content;">{{ sesion.errorMasFrecuente }}</span>
+            </div>
+          </div>
+
+          <div class="sesion-right">
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <svg viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+                  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--orange)" stroke-width="8"
+                          [attr.stroke-dasharray]="251.2"
+                          [attr.stroke-dashoffset]="gaugeOffset"
+                          stroke-linecap="round"
+                          style="transform: rotate(-90deg); transform-origin: 50% 50%;"/>
+                </svg>
+                <div class="gauge-val">
+                  <span class="val">{{ sesion.puntuacionPromedio }}</span>
+                </div>
+              </div>
+              <span class="gauge-lbl">Puntuación</span>
+            </div>
+          </div>
+        </div>
+        <a class="ver-mas" routerLink="/app/reporte/1">Ver análisis completo &gt;</a>
+      } @else {
+        <div class="empty-state">
+          <p>Sin sesiones registradas aún.</p>
+        </div>
       }
     </div>
 
-    @if (sesion) {
-    <div class="card sesion-card">
-      <div class="sesion-body">
-        <div>
-          <div class="tiro-label">Total de tiros</div>
-          <div class="tiro-num">{{ sesion.totalTiros }}</div>
-          <div style="margin-top: 14px;">
-            <div class="tiro-label" style="margin-bottom: 6px;">Error más frecuente</div>
-            <span class="chip chip-yellow">{{ sesion.errorMasFrecuente }}</span>
-          </div>
-        </div>
-
-        <div class="gauge-wrap">
-          <div class="gauge">
-            <svg viewBox="0 0 100 100" width="100" height="100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg3)" stroke-width="10"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--orange)" stroke-width="10"
-                      [attr.stroke-dasharray]="251.2"
-                      [attr.stroke-dashoffset]="gaugeOffset"
-                      stroke-linecap="round"
-                      style="transform: rotate(-90deg); transform-origin: 50% 50%;"/>
-            </svg>
-            <div class="gauge-val">
-              <span class="val">{{ sesion.puntuacionPromedio }}</span>
-            </div>
-          </div>
-          <span class="gauge-lbl">Puntuación</span>
-        </div>
-      </div>
-      <a class="ver-mas" routerLink="/app/reporte/1">Ver análisis completo →</a>
+    <div class="section-title mt-4" style="margin-top: 32px;">
+      <h3>Acceso Rápido</h3>
     </div>
-    } @else {
-    <div class="empty-state">
-      <div class="icon">📋</div>
-      <p>Sin sesiones registradas aún.</p>
-    </div>
-    }
-
-    <hr class="divider"/>
-
-    <!-- Acceso Rápido -->
-    <div class="section-title"><h3>Acceso Rápido</h3></div>
-    <div class="quick-grid">
-      <div class="quick-card" routerLink="/app/sesion">
-        <div class="quick-icon">📹</div><span>Nueva Sesión</span>
+    <div class="quick-grid-wide">
+      <div class="quick-card-wide" routerLink="/app/sesion">
+        <div class="quick-icon">📹</div>
+        <span>Nueva Sesión</span>
       </div>
-      <div class="quick-card" routerLink="/app/jugadores">
-        <div class="quick-icon">👥</div><span>Jugadores</span>
-      </div>
-      <div class="quick-card" routerLink="/app/clases/nueva">
-        <div class="quick-icon">🏫</div><span>Crear Clase</span>
-      </div>
-      <div class="quick-card" routerLink="/app/reporte/1">
-        <div class="quick-icon">📊</div><span>Reportes</span>
+      <div class="quick-card-wide" routerLink="/app/jugadores">
+        <div class="quick-icon">👥</div>
+        <span>Jugadores</span>
       </div>
     </div>
 
   </main>
-
-  <app-navbar active="dashboard"/>
 </div>

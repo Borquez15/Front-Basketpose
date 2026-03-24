@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../core/services/auth.service';
 import { DataService } from '../../core/services/data.service';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { Clase, Sesion } from '../../core/models/index';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,16 +17,17 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 export class DashboardComponent {
   auth     = inject(AuthService);
   data     = inject(DataService);
-  clases   = toSignal(this.data.getClases(), { initialValue: [] });
-  sesiones = toSignal(this.data.getSesiones(), { initialValue: [] });
 
-  get sesion() {
+  clases   = toSignal(this.data.getClases(),   { initialValue: [] as Clase[]  });
+  sesiones = toSignal(this.data.getSesiones(), { initialValue: [] as Sesion[] });
+
+  get sesion(): Sesion | null {
     const list = this.sesiones();
     return list.length > 0 ? list[list.length - 1] : null;
   }
 
-  get initials() { return this.auth.getInitials(); }
-  get nombreUsuario() { return this.auth.user()?.nombre ?? ''; }
+  get initials(): string { return this.auth.getInitials(); }
+  get nombreUsuario(): string { return this.auth.user()?.nombre ?? ''; }
 
   get gaugeOffset(): number {
     if (!this.sesion) return 251.2;

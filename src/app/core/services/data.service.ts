@@ -11,8 +11,8 @@ export class DataService {
 
   // ── CLASES ────────────────────────────────────────────────────────────────
   getClases(): Observable<Clase[]> {
-    return this.http.get<Clase[]>(`${environment.apiUrl}/clases`);
-  }
+  return this.http.get<Clase[]>(`${environment.apiUrl}/clases/mis-clases`);
+}
 
   getClase(id: number): Observable<Clase> {
     return this.http.get<Clase>(`${environment.apiUrl}/clases/${id}`);

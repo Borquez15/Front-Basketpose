@@ -14,11 +14,11 @@ declare const google: any;
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  correo    = '';
-  password  = '';
-  showPass  = signal(false);
-  error     = signal('');
-  loading   = signal(false);
+  email   = '';
+  password = '';
+  showPass = signal(false);
+  error    = signal('');
+  loading  = signal(false);
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -38,13 +38,15 @@ export class LoginComponent implements OnInit {
   togglePass() { this.showPass.update(v => !v); }
 
   submit() {
-    if (!this.correo || !this.password) {
+    if (!this.email || !this.password) {
       this.error.set('Por favor completa todos los campos.');
       return;
     }
+
     this.loading.set(true);
     this.error.set('');
-    this.auth.login(this.correo, this.password).subscribe({
+
+    this.auth.login(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/app/dashboard']),
       error: () => {
         this.error.set('Correo o contraseña incorrectos.');
@@ -56,18 +58,7 @@ export class LoginComponent implements OnInit {
   private _handleGoogleCredential(response: { credential: string }): void {
     this.loading.set(true);
     this.error.set('');
-    this.auth.loginWithGoogle(response.credential).subscribe({
-      next: () => this.router.navigate(['/app/dashboard']),
-      error: () => {
-        this.error.set('No se pudo iniciar sesión con Google. Intenta de nuevo.');
-        this.loading.set(false);
-      }
-    });
-  }
 
-  private _handleGoogleCredential(response: { credential: string }): void {
-    this.loading.set(true);
-    this.error.set('');
     this.auth.loginWithGoogle(response.credential).subscribe({
       next: () => this.router.navigate(['/app/dashboard']),
       error: () => {

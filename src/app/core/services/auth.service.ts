@@ -21,9 +21,9 @@ export class AuthService {
     this._loadUserFromToken();
   }
 
-  login(correo: string, password: string): Observable<AuthResponse> {
+  login(email: string, password: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, { correo, password })
+      .post<AuthResponse>(`${environment.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(res => {
           localStorage.setItem(TOKEN_KEY, res.access_token);
@@ -32,9 +32,9 @@ export class AuthService {
       );
   }
 
-  register(nombre: string, ap_p: string, ap_m: string, correo: string, password: string): Observable<AuthResponse> {
+  register(nombre: string, ap_p: string, ap_m: string, email: string, password: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { nombre, ap_p, ap_m, correo, password })
+      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { nombre, ap_p, ap_m, email, password })
       .pipe(
         tap(res => {
           localStorage.setItem(TOKEN_KEY, res.access_token);

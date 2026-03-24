@@ -10,7 +10,6 @@
   overflow: hidden;
 }
 
-/* Subtle background circles */
 .register-screen::before {
   content: '';
   position: absolute;
@@ -21,7 +20,12 @@
   pointer-events: none;
 }
 
-.register-box { width: 100%; max-width: 380px; position: relative; z-index: 1; }
+.register-box {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
+}
 
 .login-logo {
   display: flex;
@@ -30,6 +34,7 @@
   gap: 10px;
   margin-bottom: 32px;
 }
+
 .logo-icon {
   width: 64px; height: 64px;
   background: var(--orange);
@@ -38,10 +43,34 @@
   font-size: 1.7rem;
   box-shadow: 0 0 40px rgba(255,107,53,.35);
 }
+
 .login-logo h1 { font-size: 1.9rem; font-weight: 800; color: var(--text); }
 .login-logo p  { font-size: 0.82rem; color: var(--muted); }
 
 .login-form { display: flex; flex-direction: column; gap: 14px; }
+
+/* Grid de 2 columnas – se apila en pantallas pequeñas */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Los inputs dentro de form-grid no deben quedar cortados */
+.form-grid .field {
+  min-width: 0; /* evita overflow */
+}
+
+.form-grid input {
+  width: 100%;
+  box-sizing: border-box;
+}
 
 .error-msg {
   background: rgba(239,68,68,.12);

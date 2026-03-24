@@ -47,8 +47,7 @@ body {
 /* Mobile container centering */
 app-root {
   display: block;
-  max-width: 480px;
-  margin: 0 auto;
+  width: 100%;
   min-height: 100vh;
   background: var(--bg);
 }
@@ -231,9 +230,8 @@ hr.divider, .divider { border: none; border-top: 1px solid var(--border); margin
 
 /* ── Responsive: Tablets (768px+) ── */
 @media (min-width: 768px) {
-  app-root {
-    max-width: 768px;
-  }
+  /* Quitamos el max-width de app-root para que use toda la pantalla */
+  app-root { width: 100%; }
 
   html { font-size: 17px; }
 
@@ -250,9 +248,8 @@ hr.divider, .divider { border: none; border-top: 1px solid var(--border); margin
 
 /* ── Responsive: Desktops (1024px+) ── */
 @media (min-width: 1024px) {
-  app-root {
-    max-width: 1024px;
-  }
+  /* Quitamos el max-width de app-root para que use toda la pantalla */
+  app-root { width: 100%; }
 
   html { font-size: 18px; }
 

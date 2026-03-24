@@ -14,7 +14,7 @@ export class RegisterComponent {
   nombre   = '';
   ap_p     = '';
   ap_m     = '';
-  correo   = '';
+  email   = '';
   password = '';
   confirm  = '';
   error    = signal('');
@@ -23,7 +23,7 @@ export class RegisterComponent {
   constructor(private auth: AuthService, private router: Router) {}
 
   submit() {
-    if (!this.nombre || !this.ap_p || !this.correo || !this.password) {
+    if (!this.nombre || !this.ap_p || !this.email || !this.password) {
       this.error.set('Todos los campos obligatorios deben estar completos.');
       return;
     }
@@ -35,7 +35,7 @@ export class RegisterComponent {
     this.loading.set(true);
     this.error.set('');
 
-    this.auth.register(this.nombre, this.ap_p, this.ap_m, this.correo, this.password).subscribe({
+    this.auth.register(this.nombre, this.ap_p, this.ap_m, this.email, this.password).subscribe({
       next: () => this.router.navigate(['/app/dashboard']),
       error: () => {
         this.error.set('Error al crear la cuenta. Intenta de nuevo.');
