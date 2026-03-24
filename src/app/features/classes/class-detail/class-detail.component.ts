@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { switchMap, filter, map } from 'rxjs';
 import { DataService } from '../../../core/services/data.service';
-import { Jugador } from '../../../core/models/index';
+import { Jugador, Sesion } from '../../../core/models/index';
 
 @Component({
   selector: 'app-class-detail',
@@ -25,21 +25,27 @@ export class ClassDetailComponent {
   mostrarFormSesion = signal(false);
   tituloSesion      = '';
 
+  private claseId$ = this.route.paramMap.pipe(
+    map(p => Number(p.get('id'))),
+    filter(id => !isNaN(id) && id > 0)
+  );
+
   clase = toSignal(
-    this.route.paramMap.pipe(
-      map(p => Number(p.get('id'))),
-      filter(id => !isNaN(id) && id > 0),
-      switchMap(id => this.data.getClase(id))
-    )
+    this.claseId$.pipe(switchMap(id => this.data.getClase(id)))
   );
 
   jugadores = toSignal(
-    this.route.paramMap.pipe(
-      map(p => Number(p.get('id'))),
-      filter(id => !isNaN(id) && id > 0),
-      switchMap(id => this.data.getJugadores())
+    this.claseId$.pipe(
+      switchMap(id => this.data.getJugadores().pipe(
+        map(list => list.filter(j => j.idClase === id))
+      ))
     ),
     { initialValue: [] as Jugador[] }
+  );
+
+  sesiones = toSignal(
+    this.claseId$.pipe(switchMap(id => this.data.getSesiones(id))),
+    { initialValue: [] as Sesion[] }
   );
 
   setTab(i: number) { this.activeTab.set(i); }
@@ -59,19 +65,21 @@ export class ClassDetailComponent {
   }
 
   iniciarNuevaSesion() {
-    if (!this.tituloSesion.trim()) return; 
+    if (!this.tituloSesion.trim()) return;
     const claseActual = this.clase();
-    if (!claseActual) return;
+    if (!claseActual?.id) return;
 
-    this.data.createSesion({
-      idClase: claseActual.id,
-      titulo: this.tituloSesion
-    }).subscribe({
-      next: (sesionCreada) => {
-        this.mostrarFormSesion.set(false); // Cerramos el modal
-        this.router.navigate(['/app/sesion']); // Navegamos a la cámara
-      },
-      error: () => alert('Error al crear la sesión en el servidor.')
+    this.mostrarFormSesion.set(false);
+    this.router.navigate(['/app/sesion'], {
+      queryParams: { claseId: claseActual.id, titulo: this.tituloSesion.trim() }
+    });
+    this.tituloSesion = '';
+  }
+
+  formatFecha(fecha?: Date): string {
+    if (!fecha) return '—';
+    return new Date(fecha).toLocaleDateString('es-MX', {
+      day: '2-digit', month: 'short', year: 'numeric'
     });
   }
 }

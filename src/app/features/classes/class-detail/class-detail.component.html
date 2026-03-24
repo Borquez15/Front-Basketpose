@@ -20,14 +20,18 @@
   <div class="tabs-wrap">
     <div class="tabs">
       <div class="tab" [class.active]="activeTab()===0" (click)="setTab(0)">Jugadores</div>
-      <div class="tab" [class.active]="activeTab()===1" (click)="setTab(1)">Auxiliares</div>
-      <div class="tab" [class.active]="activeTab()===2" (click)="setTab(2)">Invitaciones</div>
+      <div class="tab" [class.active]="activeTab()===1" (click)="setTab(1)">Sesiones</div>
+      <div class="tab" [class.active]="activeTab()===2" (click)="setTab(2)">Auxiliares</div>
+      <div class="tab" [class.active]="activeTab()===3" (click)="setTab(3)">Invitaciones</div>
     </div>
   </div>
 
   <main class="content">
 
     @if (activeTab() === 0) {
+      @if (jugadores().length === 0) {
+        <div class="empty-state-sm">No hay jugadores en esta clase.</div>
+      }
       @for (j of jugadores(); track j.id) {
         <div class="player-row" [routerLink]="['/app/analisis', j.id]">
           <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
@@ -44,6 +48,23 @@
     }
 
     @if (activeTab() === 1) {
+      @if (sesiones().length === 0) {
+        <div class="empty-state-sm">No hay sesiones registradas para esta clase.</div>
+      }
+      @for (s of sesiones(); track s.id) {
+        <div class="sesion-row card">
+          <div class="sesion-info">
+            <div class="sesion-titulo">{{ s.titulo }}</div>
+            <div class="sesion-meta">
+              <span class="chip chip-gray">{{ formatFecha(s.fecha) }}</span>
+            </div>
+          </div>
+          <span class="arrow">›</span>
+        </div>
+      }
+    }
+
+    @if (activeTab() === 2) {
       <div class="player-row">
         <div class="avatar" style="background:#3b82f6;">RA</div>
         <div class="player-info">
@@ -54,7 +75,7 @@
       <button class="btn btn-outline btn-sm" style="margin-top:10px;">+ Invitar auxiliar</button>
     }
 
-    @if (activeTab() === 2) {
+    @if (activeTab() === 3) {
       <div class="invite-option">
         <h4>✉️ Invitar por correo</h4>
         <div class="field"><input type="email" placeholder="correo@ejemplo.com"/></div>
