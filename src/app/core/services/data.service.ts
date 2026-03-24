@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Clase, Jugador, Sesion, AnalisisTiro, ReporteProgreso } from '../models/index';
 
@@ -14,22 +14,35 @@ export class DataService {
 
   // ── CLASES ────────────────────────────────────────────────────────────────
   getClases(): Observable<Clase[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/clases/mis-clases`).pipe(
-      map(list => list.map(c => ({
-        id: c.id_clase,
-        nombre: c.nombre,
-        descripcion: c.descripcion ?? '',
-        nivel: 'Avanzado' as Clase['nivel'],
-        categoria: 'Adulto' as Clase['categoria'],
-        lugar: '',
-        activa: c.activo,
-        totalJugadores: c.total_miembros ?? 0,
-        promedioTecnico: 0,
-        rol: (c.mi_rol ?? 'jugador') as Clase['rol'],
-        reconocimientoFacial: false,
-        analisisRealTime: false,
-        reportesAutomaticos: false,
-      })))
+    const clases$ = this.http.get<any[]>(`${this.baseUrl}/clases/mis-clases`);
+    const jugadores$ = this.http.get<any[]>(`${this.baseUrl}/jugadores/mis-jugadores`).pipe(
+      catchError((err) => { console.error('No se pudo cargar jugadores para conteo:', err); return of([] as any[]); })
+    );
+
+    return forkJoin({ clases: clases$, jugadores: jugadores$ }).pipe(
+      map(({ clases, jugadores }) =>
+        clases.map(c => {
+          // El backend puede devolver id_clase o idClase según el endpoint
+          const totalFromPlayers = jugadores.filter(
+            j => (j.id_clase ?? j.idClase) === c.id_clase
+          ).length;
+          return {
+            id: c.id_clase,
+            nombre: c.nombre,
+            descripcion: c.descripcion ?? '',
+            nivel: 'Avanzado' as Clase['nivel'],
+            categoria: 'Adulto' as Clase['categoria'],
+            lugar: '',
+            activa: c.activo,
+            totalJugadores: c.total_miembros ?? totalFromPlayers,
+            promedioTecnico: 0,
+            rol: (c.mi_rol ?? 'jugador') as Clase['rol'],
+            reconocimientoFacial: false,
+            analisisRealTime: false,
+            reportesAutomaticos: false,
+          };
+        })
+      )
     );
   }
 

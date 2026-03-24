@@ -1,7 +1,7 @@
 // live-session.component.ts
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataService } from '../../../core/services/data.service';
@@ -18,6 +18,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   data   = inject(DataService);
   http   = inject(HttpClient);
   router = inject(Router);
+  private route = inject(ActivatedRoute);
   clases = toSignal(this.data.getClases(), { initialValue: [] });
 
   // Setup form (shown before starting)
@@ -49,7 +50,14 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
 
   stats = { tiros: 18, jugadores: 3, promedio: 82 };
 
-  ngOnInit()    { /* wait for user to start session */ }
+  ngOnInit() {
+    const params = this.route.snapshot.queryParamMap;
+    const claseIdParam = params.get('claseId');
+    const tituloParam  = params.get('titulo');
+    if (claseIdParam) this.claseId = Number(claseIdParam);
+    if (tituloParam)  this.titulo  = tituloParam;
+  }
+
   ngOnDestroy() { this._stopTimer(); }
 
   private _stopTimer() {
