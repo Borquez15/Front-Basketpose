@@ -28,35 +28,45 @@ export interface Clase {
 }
 
 // ── JUGADOR ─────────────────────────────────────────────────────────
-export interface Jugador {
+// src/app/core/models/index.ts
+
+export interface ClaseSimple {
   id: number;
-  idUsuario?: number;
-  curp?: string; 
   nombre: string;
-  correo?: string;
-  edad?: number;
-  estaturaCm?: number;
-  pesoKg?: number;
-  posicion: 'Base' | 'Escolta' | 'Alero' | 'Ala-Pivot' | 'Pivot';
-  claseNombre?: string;
-  puntuacionPromedio?: number;
-  activo: boolean;
-  initials?: string;
-  avatarColor?: string;
 }
 
+export interface Jugador {
+  id: number;
+  nombre: string;
+  idClase?: number;
+  idUsuario?: number;
+  curp?: string;
+  apellidosJugador?: string;
+  numeroCamiseta?: string; // <--- AGREGAR ESTA LÍNEA
+  estaturaCm?: number;
+  pesoKg?: number;
+  posicion?: string;
+  notas?: string;
+  activo: boolean;
+  puntuacionPromedio?: number;
+  initials?: string;
+  avatarColor?: string;
+  clase?: ClaseSimple; 
+}
 // ── SESION ──────────────────────────────────────────────────────────
 export interface Sesion {
   id: number;
   idClase: number;
-  claseNombre: string;
-  fecha: Date;
+  titulo: string;       
+  descripcion?: string; 
+  claseNombre?: string;
+  fecha?: Date;
   lugar?: string;
   horaInicio?: string;
   horaFin?: string;
-  totalTiros: number;
-  totalJugadores: number;
-  puntuacionPromedio: number;
+  totalTiros?: number;
+  totalJugadores?: number;
+  puntuacionPromedio?: number;
   errorMasFrecuente?: string;
   observaciones?: string;
 }

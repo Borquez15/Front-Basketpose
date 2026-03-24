@@ -8,7 +8,7 @@
         <p>{{ c.totalJugadores }} jugadores activos</p>
       </div>
     </div>
-    <button class="btn btn-primary btn-sm" routerLink="/app/sesion">▶ Sesión</button>
+    <button class="btn btn-primary btn-sm" (click)="mostrarFormSesion.set(true)">▶ Nueva Sesión</button>
   </header>
   } @else {
   <header class="topbar">
@@ -17,7 +17,6 @@
   </header>
   }
 
-  <!-- Tabs -->
   <div class="tabs-wrap">
     <div class="tabs">
       <div class="tab" [class.active]="activeTab()===0" (click)="setTab(0)">Jugadores</div>
@@ -28,7 +27,6 @@
 
   <main class="content">
 
-    <!-- Tab 0: Jugadores -->
     @if (activeTab() === 0) {
       @for (j of jugadores(); track j.id) {
         <div class="player-row" [routerLink]="['/app/analisis', j.id]">
@@ -45,7 +43,6 @@
       }
     }
 
-    <!-- Tab 1: Auxiliares -->
     @if (activeTab() === 1) {
       <div class="player-row">
         <div class="avatar" style="background:#3b82f6;">RA</div>
@@ -57,7 +54,6 @@
       <button class="btn btn-outline btn-sm" style="margin-top:10px;">+ Invitar auxiliar</button>
     }
 
-    <!-- Tab 2: Invitaciones -->
     @if (activeTab() === 2) {
       <div class="invite-option">
         <h4>✉️ Invitar por correo</h4>
@@ -85,4 +81,25 @@
   </main>
 
   <button class="fab" routerLink="/app/jugadores/nuevo">+</button>
+
+  @if (mostrarFormSesion()) {
+    <div class="modal-overlay fade-in">
+      <div class="modal-content card">
+        <h3 style="margin-top: 0; margin-bottom: 6px; color: var(--text);">Configurar Sesión</h3>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
+          Ingresa los detalles antes de encender la cámara.
+        </p>
+
+        <div class="field">
+          <label>Título de la sesión *</label>
+          <input type="text" placeholder="Ej. Práctica de Tiros Libres" [(ngModel)]="tituloSesion">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button class="btn btn-ghost" style="flex: 1;" (click)="mostrarFormSesion.set(false)">Cancelar</button>
+          <button class="btn btn-primary" style="flex: 1;" (click)="iniciarNuevaSesion()">Empezar</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

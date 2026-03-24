@@ -1,115 +1,107 @@
 <div class="dashboard fade-in">
-
-  <!-- Header -->
+  
   <header class="dash-header">
-    <div>
+    <div class="header-titles">
       <h2>Hola, {{ nombreUsuario || 'Entrenador' }} 👋</h2>
       <p>Bienvenido de vuelta</p>
     </div>
-    <div class="avatar avatar-lg" routerLink="/app/perfil" style="cursor:pointer;">{{ initials }}</div>
+    <div class="avatar avatar-lg" routerLink="/app/perfil" style="cursor:pointer; background: var(--orange);">
+      {{ initials }}
+    </div>
   </header>
 
   <main class="content">
 
-    <!-- Mis Clases -->
-    <div class="section-title">
-      <h3>Mis Clases</h3>
-      <a routerLink="/app/clases">Ver todas</a>
-    </div>
-
-    <div class="scroll-x clases-scroll">
-      @if (clases().length === 0) {
-        <div class="class-card new-card" routerLink="/app/clases/nueva">
-          <div class="plus">＋</div>
-          <p>Crear primera clase</p>
-        </div>
-      }
-      @for (clase of clases(); track clase.id) {
-        <div class="class-card" [routerLink]="['/app/clases', clase.id]">
-          <h4>{{ clase.nombre }}</h4>
-          <p>{{ clase.totalJugadores }} jugadores</p>
-          <button class="btn btn-primary btn-sm"
-                  (click)="$event.stopPropagation()"
-                  routerLink="/app/sesion">
-            ▶ Iniciar sesión
-          </button>
-        </div>
-      }
-      <div class="class-card new-card" routerLink="/app/clases/nueva">
-        <div class="plus">＋</div>
-        <p>Nueva clase</p>
+    <section>
+      <div class="section-header">
+        <h3>Mis Clases</h3>
+        <a routerLink="/app/clases">Ver todas</a>
       </div>
-    </div>
 
-    <hr class="divider"/>
-
-    <!-- Última Sesión -->
-    <div class="section-title">
-      <h3>Última Sesión</h3>
-      @if (sesion) {
-        <span class="date-badge">{{ sesion.fecha | date:'dd/MM/yyyy' }}</span>
-      }
-    </div>
-
-    @if (sesion) {
-    <div class="card sesion-card">
-      <div class="sesion-body">
-        <div>
-          <div class="tiro-label">Total de tiros</div>
-          <div class="tiro-num">{{ sesion.totalTiros }}</div>
-          <div style="margin-top: 14px;">
-            <div class="tiro-label" style="margin-bottom: 6px;">Error más frecuente</div>
-            <span class="chip chip-yellow">{{ sesion.errorMasFrecuente || 'Sin datos' }}</span>
+      <div class="clases-scroll">
+        @if (clases().length === 0) {
+          <div class="class-card new-card" routerLink="/app/clases/nueva">
+            <div class="plus">＋</div>
+            <p>Crear primera clase</p>
           </div>
-        </div>
-
-        <div class="gauge-wrap">
-          <div class="gauge">
-            <svg viewBox="0 0 100 100" width="100" height="100">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg3)" stroke-width="10"/>
-              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--orange)" stroke-width="10"
-                      [attr.stroke-dasharray]="251.2"
-                      [attr.stroke-dashoffset]="gaugeOffset"
-                      stroke-linecap="round"
-                      style="transform: rotate(-90deg); transform-origin: 50% 50%;"/>
-            </svg>
-            <div class="gauge-val">
-              <span class="val">{{ sesion.puntuacionPromedio }}</span>
+        }
+        @for (clase of clases(); track clase.id) {
+          <div class="class-card" [routerLink]="['/app/clases', clase.id]">
+            <div>
+              <h4>{{ clase.nombre }}</h4>
+              <p>{{ clase.totalJugadores }} jugadores activos</p>
             </div>
+            <button class="btn btn-outline btn-sm"
+                    (click)="$event.stopPropagation()"
+                    routerLink="/app/sesion"
+                    style="margin-top: auto;">
+              ▶ Iniciar sesión
+            </button>
           </div>
-          <span class="gauge-lbl">Puntuación</span>
+        }
+      </div>
+    </section>
+
+    <section>
+      <div class="section-header">
+        <h3>Último Análisis</h3>
+      </div>
+
+      @if (sesion) {
+      <div class="analysis-card">
+        <div class="analysis-titles">
+          <h4>{{ sesion.titulo || 'Sesión Reciente' }}</h4>
+          <p>{{ sesion.fecha | date:'mediumDate' }}</p>
         </div>
+        
+        <div class="gauge-container">
+          <svg viewBox="0 0 100 100" width="140" height="140">
+            <circle cx="50" cy="50" r="40" fill="none" stroke="var(--bg3)" stroke-width="8"/>
+            <circle cx="50" cy="50" r="40" fill="none"
+                    stroke="var(--orange)" stroke-width="8"
+                    stroke-dasharray="251.2"
+                    [attr.stroke-dashoffset]="gaugeOffset"
+                    stroke-linecap="round"
+                    style="transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 1s ease-out;"/>
+          </svg>
+          <div class="gauge-val">
+            <span class="val">{{ sesion.puntuacionPromedio || 0 }}</span>
+          </div>
+        </div>
+        <span class="gauge-lbl">Puntuación Promedio</span>
+        
+        <button class="btn btn-ghost btn-full" routerLink="/app/reporte/1">Ver análisis completo →</button>
       </div>
-      <a class="ver-mas" routerLink="/app/reporte/1">Ver análisis completo →</a>
-    </div>
-    } @else {
-    <div class="empty-state">
-      <div class="icon">📋</div>
-      <p>Sin sesiones registradas aún.</p>
-      <button class="btn btn-primary btn-sm" routerLink="/app/sesion">Iniciar primera sesión</button>
-    </div>
-    }
+      } @else {
+      <div class="analysis-card empty-card">
+        <div class="empty-icon">📋</div>
+        <p>Sin sesiones registradas aún.</p>
+        <button class="btn btn-primary btn-sm" routerLink="/app/sesion">Iniciar primera sesión</button>
+      </div>
+      }
+    </section>
 
-    <hr class="divider"/>
-
-    <!-- Acceso Rápido -->
-    <div class="section-title"><h3>Acceso Rápido</h3></div>
-    <div class="quick-grid">
-      <div class="quick-card" routerLink="/app/sesion">
-        <div class="quick-icon">📹</div><span>Nueva Sesión</span>
+    <section>
+      <div class="section-header">
+        <h3>Acceso Rápido</h3>
       </div>
-      <div class="quick-card" routerLink="/app/jugadores">
-        <div class="quick-icon">👥</div><span>Jugadores</span>
+      <div class="quick-grid">
+        <a class="quick-card" routerLink="/app/sesion">
+          <div class="quick-icon">📹</div><span>Nueva Sesión</span>
+        </a>
+        <a class="quick-card" routerLink="/app/jugadores">
+          <div class="quick-icon">👥</div><span>Jugadores</span>
+        </a>
+        <a class="quick-card" routerLink="/app/clases/nueva">
+          <div class="quick-icon">🏀</div><span>Crear Clase</span>
+        </a>
+        <a class="quick-card" routerLink="/app/perfil">
+          <div class="quick-icon">⚙️</div><span>Configuración</span>
+        </a>
       </div>
-      <div class="quick-card" routerLink="/app/clases/nueva">
-        <div class="quick-icon">🏫</div><span>Crear Clase</span>
-      </div>
-      <div class="quick-card" routerLink="/app/reporte/1">
-        <div class="quick-icon">📊</div><span>Reportes</span>
-      </div>
-    </div>
+    </section>
 
   </main>
-
+  
   <app-navbar active="dashboard"/>
 </div>

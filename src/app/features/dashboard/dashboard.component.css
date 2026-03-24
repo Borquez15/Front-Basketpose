@@ -1,154 +1,165 @@
-.dashboard { display: flex; flex-direction: column; min-height: 100vh; background: var(--bg); }
+/* dashboard.component.css - Diseño Perfectamente Alineado */
 
-/* ── Header ── */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* ── HEADER ── */
 .dash-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 20px 24px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 50;
 }
-.header-titles h2 { font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 0;}
-.header-titles p  { font-size: 0.75rem; color: var(--muted); margin-top: 2px; margin-bottom: 0;}
+.header-titles h2 { font-size: 1.25rem; font-weight: 800; color: var(--text); margin: 0 0 4px 0; }
+.header-titles p  { font-size: 0.8rem; color: var(--muted); margin: 0; }
 
-/* ── Contenido Principal ── */
+/* ── CONTENEDOR PRINCIPAL ── */
 .content {
   flex: 1;
-  padding: 24px 24px 100px;
+  padding: 24px 24px 100px; /* 100px bottom para no chocar con el navbar */
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 36px; /* Espaciado uniforme entre secciones */
   width: 100%;
-  max-width: 1200px; /* Centra el diseño en pantallas gigantes */
+  max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: -8px;}
-.section-title h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0;}
-.section-title a  { font-size: 0.85rem; color: var(--orange); }
-.mt-4 { margin-top: 16px; }
+/* ── ENCABEZADOS DE SECCIÓN ── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.section-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.section-header a {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--orange);
+  text-decoration: none;
+}
+.section-header a:hover { text-decoration: underline; }
 
-/* ── Tarjetas de Clases ── */
+/* ── SCROLL HORIZONTAL (Clases) ── */
 .clases-scroll {
   display: flex;
   gap: 16px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: 8px; /* Evita que la sombra se corte */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
-.clases-scroll::-webkit-scrollbar { display: none; }
+/* Oculta la barra scroll visual pero mantiene la funcionalidad */
+.clases-scroll::-webkit-scrollbar { height: 0px; display: none; }
+.clases-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
 .class-card {
-  background: var(--bg2);
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 16px;
+  min-width: 220px; /* Impide que las tarjetas se aplasten */
+  flex: 0 0 auto;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 20px;
-  min-width: 240px;
-  flex-shrink: 0;
+  gap: 16px;
+  cursor: pointer;
   transition: transform 0.2s, border-color 0.2s;
 }
-.class-card:hover { transform: translateY(-3px); border-color: rgba(255,107,53,0.4); }
-.class-card h4 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px;}
-.class-card p  { font-size: 0.85rem; color: var(--muted); margin: 0; }
-.btn-full { width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none; font-weight: 600; cursor: pointer;}
+.class-card:hover { transform: translateY(-3px); border-color: var(--orange); }
+.class-card h4 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--text); }
+.class-card p  { margin: 4px 0 0 0; font-size: 0.85rem; color: var(--muted); }
 
-.new-card { background: rgba(255,107,53,0.05); border: 1.5px dashed rgba(255,107,53,0.4); align-items: center; justify-content: center; cursor: pointer;}
-.new-card:hover { background: rgba(255,107,53,0.1); border-color: var(--orange); }
-.new-card .plus { font-size: 2rem; color: var(--orange); }
-.new-card p { color: var(--orange); font-weight: 600; margin: 0; font-size: 0.9rem; }
-
-/* ── Tarjeta Ancha Última Sesión ── */
-.sesion-card-wide {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.sesion-header { display: flex; justify-content: space-between; align-items: center; }
-.sesion-header h3 { font-size: 1.1rem; font-weight: 700; margin: 0;}
-.date-badge { font-size: 0.85rem; color: var(--muted); }
-
-.sesion-body-wide {
-  display: flex;
-  justify-content: space-between;
+.new-card {
+  border: 1px dashed var(--muted);
+  background: transparent;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--muted);
 }
-.sesion-left { display: flex; flex-direction: column; justify-content: space-between;}
-.stat-group { display: flex; flex-direction: column; gap: 6px; }
-.tiro-label { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
-.tiro-num { font-size: 2.5rem; font-weight: 800; line-height: 1; margin-top: 4px; color: var(--text);}
+.new-card:hover { border-color: var(--orange); color: var(--orange); background: rgba(255, 107, 53, 0.05); }
+.plus { font-size: 2rem; margin-bottom: 8px; }
 
-.gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.gauge { position: relative; width: 120px; height: 120px; }
-.gauge svg { width: 100%; height: 100%; }
-.gauge-val { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.gauge-val .val { font-size: 2rem; font-weight: 800; color: var(--text); }
-
-.ver-mas { text-align: center; color: var(--orange); font-size: 0.9rem; font-weight: 600; margin-top: 16px; display: block; text-decoration: none;}
-.ver-mas:hover { text-decoration: underline; }
-
-/* ── Tarjetas Anchas Acceso Rápido ── */
-.quick-grid-wide {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-.quick-card-wide {
-  background: var(--bg2);
+/* ── TARJETA ANÁLISIS (Medidor / Gauge) ── */
+.analysis-card {
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  text-align: center;
+}
+.analysis-titles h4 { margin: 0; font-size: 1.05rem; color: var(--text); }
+.analysis-titles p  { margin: 4px 0 0 0; font-size: 0.85rem; color: var(--muted); }
+
+.gauge-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+.gauge-val {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.gauge-val .val { font-size: 2.2rem; font-weight: 800; color: var(--text); }
+.gauge-lbl { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-top: -10px; }
+
+.empty-card { padding: 40px 20px; }
+.empty-icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.8; }
+
+/* ── CUADRÍCULA ACCESO RÁPIDO ── */
+.quick-grid {
+  display: grid;
+  /* La magia: se auto-acomoda creando columnas de al menos 130px */
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+  gap: 16px;
+}
+.quick-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
   cursor: pointer;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: all 0.2s;
   text-decoration: none;
   color: var(--text);
 }
-.quick-card-wide:hover { transform: translateY(-3px); border-color: var(--orange); background: linear-gradient(145deg, var(--bg2), var(--bg3));}
+.quick-card:hover { border-color: var(--orange); background: var(--bg3); transform: translateY(-2px); }
 .quick-icon {
-  width: 56px; height: 56px;
+  width: 48px; height: 48px;
   border-radius: 50%;
   background: rgba(255,107,53,0.15);
   display: flex; align-items: center; justify-content: center;
   font-size: 1.5rem;
 }
-.quick-card-wide span { font-size: 1rem; font-weight: 600; }
-
-.empty-state { text-align: center; color: var(--muted); padding: 20px; }
-
-/* ═══════════════════════════════════════
-   MAGIA DEL NAVBAR (MÓVIL VS DESKTOP)
-═══════════════════════════════════════ */
-
-/* En celulares y tablets, ocultamos el menú que está adentro del header */
-@media (max-width: 1023px) {
-  .main-nav { display: none; }
-}
-
-/* En PC, ajustamos proporciones */
-@media (min-width: 1024px) {
-  .dash-header { padding: 24px 48px; }
-  .content { padding: 40px 48px 60px; }
-  
-  /* Hacemos que la navbar ocupe el espacio central del header */
-  .main-nav {
-    display: block;
-    flex: 1;
-    margin: 0 40px;
-    display: flex;
-    justify-content: center;
-  }
-}
+.quick-card span { font-size: 0.9rem; font-weight: 600; }

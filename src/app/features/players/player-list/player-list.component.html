@@ -6,13 +6,13 @@
 
   <main class="content">
     <div class="field" style="margin-bottom:12px;">
-      <input type="text" placeholder="🔍  Buscar jugador..."
+      <input type="text" placeholder="🔍  Buscar por nombre..."
              [value]="search()" (input)="search.set($any($event.target).value)"/>
     </div>
 
     <div class="pos-filters">
       @for (pos of posiciones; track pos) {
-        <span [class]="posFilter()===pos ? 'chip chip-orange' : 'chip chip-gray'"
+        <span [class]="posFilter() === pos ? 'chip chip-orange' : 'chip chip-gray'"
               style="cursor:pointer;" (click)="posFilter.set(pos)">
           {{ pos }}
         </span>
@@ -29,21 +29,69 @@
 
     <div class="player-rows">
       @for (j of filtered(); track j.id) {
-        <div class="player-row" [routerLink]="['/app/analisis', j.id]">
+        <div class="player-row" (click)="verDetalles(j)">
           <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
+          
           <div class="player-info">
-            <div class="player-name">{{ j.nombre }}</div>
+            <div class="player-name">{{ j.nombre }} {{ j.apellidosJugador }}</div>
             <div class="player-meta">
               <span class="chip chip-gray">{{ j.posicion }}</span>
-              <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">{{ j.puntuacionPromedio }} pts</span>
-              <span class="clase-tag">{{ j.claseNombre }}</span>
+              <span class="chip chip-blue">{{ j.clase?.nombre || 'Sin Clase' }}</span>
+              <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">
+                {{ j.puntuacionPromedio }}%
+              </span>
             </div>
           </div>
-          <span class="arrow">›</span>
+
+          <div class="player-actions">
+            <button class="btn-icon" [routerLink]="['/app/analisis', j.id]" (click)="$event.stopPropagation()">
+              <i class="fas fa-chart-line"></i>
+            </button>
+            <span class="arrow">›</span>
+          </div>
         </div>
       }
     </div>
+
+    @if (selectedPlayer()) {
+      <div class="player-detail-overlay" (click)="selectedPlayer.set(null)">
+        <div class="player-card fade-in-up" (click)="$event.stopPropagation()">
+          <header class="card-header">
+            <h3>Ficha del Jugador</h3>
+            <button class="close-btn" (click)="selectedPlayer.set(null)">&times;</button>
+          </header>
+          
+          <div class="card-body">
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>CURP</label>
+                <span>{{ selectedPlayer()?.curp || 'No disponible' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Número de Camiseta</label>
+                <span>#{{ selectedPlayer()?.numeroCamiseta || 'S/N' }}</span>
+              </div>
+              <div class="detail-item">
+                <label>Estatura</label>
+                <span>{{ selectedPlayer()?.estaturaCm }} cm</span>
+              </div>
+              <div class="detail-item">
+                <label>Peso</label>
+                <span>{{ selectedPlayer()?.pesoKg }} kg</span>
+              </div>
+            </div>
+          </div>
+
+          <footer class="card-footer">
+            <button class="btn btn-secondary w-100 mb-2" (click)="selectedPlayer.set(null)">Cerrar</button>
+            <button class="btn btn-primary w-100" [routerLink]="['/app/analisis', selectedPlayer()?.id]">
+              Ver Análisis de Tiros
+            </button>
+          </footer>
+        </div>
+      </div>
+    }
   </main>
 
-  <app-navbar active="jugadores"/>
+  <app-navbar active="jugadores" />
 </div>
