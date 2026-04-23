@@ -1,0 +1,168 @@
+<div class="page fade-in">
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="btn-icon" routerLink="/app/jugadores">←</button>
+      <div>
+        <h2>Registro de Jugador</h2>
+        <p>CU-C01 · Alta y registro facial biométrico</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ── Error global ── -->
+    @if (formError()) {
+      <div class="error-msg">{{ formError() }}</div>
+    }
+
+    <!-- ══════════════════════════════════════════════
+         PASO 1 – Datos del jugador
+         Se muestra siempre. Una vez guardado, el ID
+         aparece y se habilita el paso 2.
+    ══════════════════════════════════════════════ -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-badge">1</span>
+        <div>
+          <div class="step-title">Datos del jugador</div>
+          <div class="step-sub">Nombre, posición y clase</div>
+        </div>
+        @if (savedId()) {
+          <span class="chip chip-green ml-auto">✓ Guardado</span>
+        }
+      </div>
+
+      <div class="form-col">
+
+        <!-- Nombre + Apellidos -->
+        <div class="form-grid">
+          <div class="field">
+            <label>Nombre *</label>
+            <input type="text" placeholder="ej. Juan" [(ngModel)]="nombre" [disabled]="!!savedId()"/>
+          </div>
+          <div class="field">
+            <label>Apellidos *</label>
+            <input type="text" placeholder="ej. García López" [(ngModel)]="apellidos" [disabled]="!!savedId()"/>
+          </div>
+        </div>
+
+        <!-- Camiseta + Posición -->
+        <div class="form-grid">
+          <div class="field">
+            <label>N° Camiseta</label>
+            <input type="text" placeholder="ej. 23" [(ngModel)]="numeroCamiseta" [disabled]="!!savedId()"/>
+          </div>
+          <div class="field">
+            <label>Posición</label>
+            <select [(ngModel)]="posicion" [disabled]="!!savedId()">
+              <option>Base</option>
+              <option>Escolta</option>
+              <option>Alero</option>
+              <option>Ala-Pivot</option>
+              <option>Pivot</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Estatura + Peso -->
+        <div class="form-grid">
+          <div class="field">
+            <label>Estatura (cm)</label>
+            <input type="number" placeholder="180" [(ngModel)]="estatura" [disabled]="!!savedId()"/>
+          </div>
+          <div class="field">
+            <label>Peso (kg)</label>
+            <input type="number" placeholder="75" [(ngModel)]="peso" [disabled]="!!savedId()"/>
+          </div>
+        </div>
+
+        <!-- CURP -->
+        <div class="field">
+          <label>CURP (opcional)</label>
+          <input type="text" placeholder="AAAA000000XXXXXXX0"
+                 [(ngModel)]="curp" style="text-transform:uppercase;"
+                 [disabled]="!!savedId()"/>
+        </div>
+
+        <!-- Clase -->
+        <div class="field">
+          <label>Clase *</label>
+          <select [(ngModel)]="claseId" [disabled]="!!savedId()">
+            <option [ngValue]="null" disabled>Selecciona una clase</option>
+            @for (c of clases(); track c.id) {
+              <option [ngValue]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        @if (!savedId()) {
+          <button class="btn btn-primary btn-full" style="padding:14px;"
+                  [disabled]="saving()" (click)="guardar()">
+            {{ saving() ? 'Guardando…' : 'Guardar jugador' }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         PASO 2 – Registro Facial (CU-C02)
+         Solo se activa cuando el jugador ya fue guardado.
+    ══════════════════════════════════════════════ -->
+    <div class="step-card" [class.step-disabled]="!savedId()">
+      <div class="step-header">
+        <span class="step-badge" [class.inactive]="!savedId()">2</span>
+        <div>
+          <div class="step-title">Registro Facial Biométrico</div>
+          <div class="step-sub">{{ savedId() ? 'Captura los 128 puntos faciales del jugador' : 'Guarda primero los datos del jugador' }}</div>
+        </div>
+        @if (faceStatus() === 'success') {
+          <span class="chip chip-green ml-auto">✓ Rostro listo</span>
+        }
+      </div>
+
+      <div class="face-panel">
+        <!-- Ícono de cámara animado -->
+        <div class="face-icon" [class.face-active]="faceStatus() === 'capturing'">
+          @switch (faceStatus()) {
+            @case ('idle')      { <span>👤</span> }
+            @case ('capturing') { <span class="spin">📷</span> }
+            @case ('success')   { <span>🙂</span> }
+            @case ('error')     { <span>❌</span> }
+          }
+        </div>
+
+        <p class="face-desc">
+          Al presionar el botón, el backend encenderá la cámara del iPhone,
+          detectará el rostro y guardará los 128 puntos de reconocimiento
+          facial en la base de datos MySQL.
+        </p>
+
+        @if (faceMsg()) {
+          <div class="face-msg" [class.success]="faceStatus() === 'success'"
+                               [class.error]="faceStatus() === 'error'">
+            {{ faceMsg() }}
+          </div>
+        }
+
+        <button class="btn btn-primary btn-full"
+                [disabled]="!savedId() || faceStatus() === 'capturing' || faceStatus() === 'success'"
+                (click)="capturarRostro()">
+          @switch (faceStatus()) {
+            @case ('idle')      { 📷 Registrar Rostro }
+            @case ('capturing') { ⏳ Capturando… espera al backend }
+            @case ('success')   { ✅ Rostro registrado }
+            @case ('error')     { 🔄 Reintentar captura }
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Acciones finales -->
+    <div class="actions-row">
+      <button class="btn btn-ghost btn-full" routerLink="/app/jugadores">← Volver a jugadores</button>
+    </div>
+
+  </main>
+</div>
