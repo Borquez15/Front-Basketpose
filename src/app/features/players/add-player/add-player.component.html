@@ -1,7 +1,7 @@
 <div class="page fade-in">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="btn-icon" routerLink="/app/jugadores">←</button>
+      <button class="btn-icon" routerLink="/app/jugadores">&larr;</button>
       <div>
         <h2>Agregar Jugador</h2>
         <p>Registro de nuevo jugador</p>
@@ -20,25 +20,36 @@
 
         @if (!cameraOn()) {
           <div class="camera-placeholder">
-            <div class="face-avatar">👤</div>
-            <p>Inicia la cámara para registrar el rostro del jugador</p>
+            <div class="face-avatar">Persona</div>
+            <p>Inicia la camara para registrar el rostro del jugador</p>
           </div>
         }
 
         @if (faceCapture()) {
-          <div class="capture-badge">✅ Rostro capturado</div>
+          <div class="capture-badge">Rostro capturado</div>
         }
       </div>
 
       <canvas #canvasFace hidden></canvas>
 
+      @if (cameras().length > 1) {
+        <div class="field camera-select">
+          <label>Camara</label>
+          <select [(ngModel)]="selectedCameraId" (change)="cambiarCamara()">
+            @for (camera of cameras(); track camera.deviceId) {
+              <option [ngValue]="camera.deviceId">{{ camera.label }}</option>
+            }
+          </select>
+        </div>
+      }
+
       <div class="face-actions">
         <button class="btn btn-outline btn-sm" type="button" (click)="iniciarCamaraRostro()">
-          📱 Iniciar cámara
+          Iniciar camara
         </button>
 
         <button class="btn btn-outline btn-sm" type="button" (click)="capturarRostro()" [disabled]="!cameraOn()">
-          📷 Capturar rostro
+          Capturar rostro
         </button>
 
         <button class="btn btn-ghost btn-sm" type="button" (click)="detenerCamaraRostro()" [disabled]="!cameraOn()">
@@ -46,7 +57,7 @@
         </button>
       </div>
 
-      <p>Se usará para reconocimiento facial durante las sesiones de entrenamiento.</p>
+      <p>Se usara para reconocimiento facial durante las sesiones de entrenamiento.</p>
     </div>
 
     <div class="form-col">
@@ -64,7 +75,7 @@
             />
 
             <button class="btn btn-outline btn-sm" type="button" (click)="buscarCurp()" [disabled]="curpLoading()">
-              {{ curpLoading() ? '⏳' : '🔍 Buscar' }}
+              {{ curpLoading() ? 'Buscando...' : 'Buscar' }}
             </button>
           </div>
         </div>
@@ -80,7 +91,7 @@
       </div>
 
       <div class="field">
-        <label>Correo electrónico</label>
+        <label>Correo electronico</label>
         <input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="correo"/>
       </div>
 
@@ -91,13 +102,13 @@
         </div>
 
         <div class="field">
-          <label>N° Camiseta</label>
+          <label>Numero de camiseta</label>
           <input type="text" placeholder="ej. 23" [(ngModel)]="numeroCamiseta"/>
         </div>
       </div>
 
       <div class="field">
-        <label>Posición</label>
+        <label>Posicion</label>
         <select [(ngModel)]="posicion">
           <option>Base</option>
           <option>Escolta</option>

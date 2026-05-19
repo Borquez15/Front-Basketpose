@@ -118,6 +118,11 @@
   gap: 8px;
 }
 
+.camera-select {
+  width: 100%;
+  max-width: 360px;
+}
+
 .face-box p {
   font-size: 0.75rem;
   color: var(--muted);

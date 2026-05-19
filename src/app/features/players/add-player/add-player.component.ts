@@ -15,9 +15,18 @@ import { DataService } from '../../../core/services/data.service';
 import { environment } from '../../../../environments/environment';
 
 interface CurpResult {
-  nombre: string;
-  apellidos: string;
-  edad: number;
+  encontrado?: boolean;
+  datos?: {
+    nombre_jugador?: string;
+    apellidos_jugador?: string;
+    altura_cm?: number;
+    peso_kg?: number;
+  };
+}
+
+interface CameraOption {
+  deviceId: string;
+  label: string;
 }
 
 @Component({
@@ -55,24 +64,50 @@ export class AddPlayerComponent implements OnDestroy {
   faceCapture = signal(false);
   cameraOn = signal(false);
   faceLoading = signal(false);
+  cameras = signal<CameraOption[]>([]);
+  selectedCameraId = '';
 
   private faceStream: MediaStream | null = null;
   rostroBase64: string | null = null;
+
+  async cargarCamaras() {
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      return;
+    }
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices
+      .filter(device => device.kind === 'videoinput')
+      .map((device, index) => ({
+        deviceId: device.deviceId,
+        label: device.label || `Camara ${index + 1}`
+      }));
+
+    this.cameras.set(cameras);
+
+    if (!this.selectedCameraId && cameras.length > 0) {
+      this.selectedCameraId = cameras[0].deviceId;
+    }
+  }
 
   async iniciarCamaraRostro() {
     this.error.set('');
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      this.error.set('Tu navegador no permite usar cámara. Abre la app en Safari/Chrome con HTTPS.');
+      this.error.set('Tu navegador no permite usar camara. Abre la app en Safari/Chrome con HTTPS.');
       return;
     }
 
     try {
       this.detenerCamaraRostro();
 
+      const selectedVideo: MediaTrackConstraints = this.selectedCameraId
+        ? { deviceId: { exact: this.selectedCameraId } }
+        : { facingMode: 'user' };
+
       this.faceStream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'user',
+          ...selectedVideo,
           width: { ideal: 1280 },
           height: { ideal: 720 }
         },
@@ -86,10 +121,11 @@ export class AddPlayerComponent implements OnDestroy {
       this.cameraOn.set(true);
       this.faceCapture.set(false);
       this.rostroBase64 = null;
+      await this.cargarCamaras();
     } catch (err) {
       console.error(err);
       this.error.set(
-        'No se pudo acceder a la cámara. Da permisos al navegador y usa HTTPS o localhost.'
+        'No se pudo acceder a la camara. Da permisos al navegador y usa HTTPS o localhost.'
       );
     }
   }
@@ -107,6 +143,12 @@ export class AddPlayerComponent implements OnDestroy {
     this.cameraOn.set(false);
   }
 
+  async cambiarCamara() {
+    if (this.cameraOn()) {
+      await this.iniciarCamaraRostro();
+    }
+  }
+
   capturarRostro() {
     this.error.set('');
 
@@ -114,12 +156,12 @@ export class AddPlayerComponent implements OnDestroy {
     const canvas = this.canvasFace?.nativeElement;
 
     if (!video || !canvas || !this.cameraOn()) {
-      this.error.set('Primero inicia la cámara.');
+      this.error.set('Primero inicia la camara.');
       return;
     }
 
     if (!video.videoWidth || !video.videoHeight) {
-      this.error.set('La cámara aún no está lista. Espera un segundo e intenta de nuevo.');
+      this.error.set('La camara aun no esta lista. Espera un segundo e intenta de nuevo.');
       return;
     }
 
@@ -155,12 +197,20 @@ export class AddPlayerComponent implements OnDestroy {
 
     this.curpLoading.set(true);
 
-    this.http.get<CurpResult>(`${environment.apiUrl}/curp/${curp}`).subscribe({
+    this.http.get<CurpResult>(`${environment.apiUrl}/jugadores/lookup/curp`, {
+      params: { curp }
+    }).subscribe({
       next: (res) => {
-        this.nombre = `${res.nombre} ${res.apellidos}`.trim();
-        this.edad = res.edad ?? this.edad;
-        this.curpFound.set(true);
-        this.curpMsg.set('Datos encontrados y cargados en el formulario.');
+        if (res.encontrado && res.datos) {
+          this.nombre = `${res.datos.nombre_jugador ?? ''} ${res.datos.apellidos_jugador ?? ''}`.trim();
+          this.estatura = res.datos.altura_cm ?? this.estatura;
+          this.peso = res.datos.peso_kg ?? this.peso;
+          this.curpFound.set(true);
+          this.curpMsg.set('Datos encontrados y cargados en el formulario.');
+        } else {
+          this.curpFound.set(false);
+          this.curpMsg.set('No se encontraron datos para esa CURP. Puedes llenar el formulario manualmente.');
+        }
         this.curpLoading.set(false);
       },
       error: () => {
