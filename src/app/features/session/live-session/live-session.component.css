@@ -60,6 +60,15 @@
   font-size: 0.82rem;
 }
 
+.setup-status {
+  background: rgba(59,130,246,.12);
+  border: 1px solid rgba(59,130,246,.32);
+  color: var(--blue);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+
 .live-error {
   margin: 10px 16px 0;
 }

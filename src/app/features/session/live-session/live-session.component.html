@@ -14,6 +14,10 @@
           <div class="error-msg">{{ setupError() }}</div>
         }
 
+        @if (setupStatus()) {
+          <div class="setup-status">{{ setupStatus() }}</div>
+        }
+
         <div class="field">
           <label>Titulo de la sesion *</label>
           <input type="text" placeholder="ej. Entrenamiento martes" [(ngModel)]="titulo"/>

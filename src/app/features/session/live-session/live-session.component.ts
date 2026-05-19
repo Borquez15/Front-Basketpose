@@ -1,6 +1,7 @@
 // live-session.component.ts
 import {
   Component,
+  ChangeDetectorRef,
   ElementRef,
   OnDestroy,
   OnInit,
@@ -50,6 +51,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   data   = inject(DataService);
   http   = inject(HttpClient);
   router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   clases = toSignal(this.data.getClases(), { initialValue: [] });
 
@@ -59,6 +61,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
 
   sessionStarted = signal(false);
   setupError     = signal('');
+  setupStatus    = signal('');
   saving         = signal(false);
 
   titulo       = '';
@@ -116,6 +119,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
 
     this.saving.set(true);
     this.setupError.set('');
+    this.setupStatus.set('Creando sesion...');
 
     const payload = {
       id_clase:     this.claseId,
@@ -127,16 +131,31 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
 
     this.http.post<any>(`${environment.apiUrl}/sesiones`, payload).subscribe({
       next: (res) => {
+        console.log('SESION CREADA:', res);
         this.saving.set(false);
         this.sessionId = res.id_sesion ?? res.id;
+        if (!this.sessionId) {
+          this.setupError.set('La sesion se creo, pero el backend no devolvio id_sesion.');
+          this.setupStatus.set('');
+          return;
+        }
+        this.setupStatus.set('Sesion creada. Activando camara...');
         this.sessionStarted.set(true);
+        this.cdr.detectChanges();
         this.seconds.set(0);
         this.interval = setInterval(() => this.seconds.update(s => s + 1), 1000);
-        setTimeout(() => void this.iniciarCamaraAnalisis(), 0);
+        setTimeout(() => void this.iniciarCamaraAnalisis(), 150);
       },
       error: (err) => {
+        console.error('ERROR AL CREAR SESION:', err);
         this.saving.set(false);
-        const msg = err?.error?.detail || 'Error al crear la sesion. Intenta de nuevo.';
+        this.setupStatus.set('');
+        const detail = err?.error?.detail;
+        const msg = typeof detail === 'string'
+          ? detail
+          : detail
+            ? JSON.stringify(detail)
+            : 'Error al crear la sesion. Intenta de nuevo.';
         this.setupError.set(msg);
       }
     });
@@ -189,6 +208,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
       await this.cargarCamaras();
 
       this.bodyStatus.set('Camara activa. Coloca el cuerpo completo dentro del encuadre.');
+      this.cameraError.set('');
       this.iniciarAnalisisFrames();
     } catch (err) {
       console.error(err);
