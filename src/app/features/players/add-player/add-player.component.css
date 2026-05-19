@@ -170,3 +170,36 @@
   font-size: 0.82rem;
   margin-bottom: 12px;
 }
+
+.captured-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  z-index: 2;
+}
+
+.capture-badge {
+  z-index: 3;
+}
+
+.face-status {
+  width: 100%;
+  max-width: 360px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+}
+
+.face-status.valid {
+  color: var(--green);
+  background: rgba(16,185,129,.08);
+  border-color: rgba(16,185,129,.3);
+}
+
+.face-status.invalid {
+  color: var(--yellow);
+}

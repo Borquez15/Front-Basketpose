@@ -29,6 +29,11 @@ interface CameraOption {
   label: string;
 }
 
+interface FaceValidationResponse {
+  valid: boolean;
+  mensaje: string;
+}
+
 @Component({
   selector: 'app-add-player',
   standalone: true,
@@ -64,6 +69,9 @@ export class AddPlayerComponent implements OnDestroy {
   faceCapture = signal(false);
   cameraOn = signal(false);
   faceLoading = signal(false);
+  faceChecking = signal(false);
+  faceValidated = signal(false);
+  faceStatus = signal('Inicia la camara y captura el rostro del jugador.');
   cameras = signal<CameraOption[]>([]);
   selectedCameraId = '';
 
@@ -120,6 +128,8 @@ export class AddPlayerComponent implements OnDestroy {
 
       this.cameraOn.set(true);
       this.faceCapture.set(false);
+      this.faceValidated.set(false);
+      this.faceStatus.set('Camara activa. Coloca un solo rostro al centro y captura.');
       this.rostroBase64 = null;
       await this.cargarCamaras();
     } catch (err) {
@@ -143,6 +153,15 @@ export class AddPlayerComponent implements OnDestroy {
     this.cameraOn.set(false);
   }
 
+  repetirCaptura() {
+    this.faceCapture.set(false);
+    this.faceValidated.set(false);
+    this.faceChecking.set(false);
+    this.faceStatus.set('Captura nuevamente el rostro del jugador.');
+    this.rostroBase64 = null;
+    void this.iniciarCamaraRostro();
+  }
+
   async cambiarCamara() {
     if (this.cameraOn()) {
       await this.iniciarCamaraRostro();
@@ -151,6 +170,8 @@ export class AddPlayerComponent implements OnDestroy {
 
   capturarRostro() {
     this.error.set('');
+    this.faceStatus.set('');
+    this.faceValidated.set(false);
 
     const video = this.videoFace?.nativeElement;
     const canvas = this.canvasFace?.nativeElement;
@@ -176,7 +197,28 @@ export class AddPlayerComponent implements OnDestroy {
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     this.rostroBase64 = canvas.toDataURL('image/jpeg', 0.92);
-    this.faceCapture.set(true);
+    this.faceChecking.set(true);
+    this.faceStatus.set('Validando rostro...');
+
+    this.http.post<FaceValidationResponse>(`${environment.apiUrl}/reconocimiento/validar`, {
+      image_base64: this.rostroBase64
+    }).subscribe({
+      next: (res) => {
+        this.faceChecking.set(false);
+        this.faceValidated.set(true);
+        this.faceCapture.set(true);
+        this.faceStatus.set(res.mensaje || 'Rostro validado correctamente. Ya puedes guardar.');
+        this.detenerCamaraRostro();
+      },
+      error: (err) => {
+        this.faceChecking.set(false);
+        this.faceValidated.set(false);
+        this.faceCapture.set(false);
+        this.rostroBase64 = null;
+        const msg = err?.error?.detail || 'No se pudo validar el rostro. Intenta otra captura.';
+        this.faceStatus.set(msg);
+      }
+    });
   }
 
   buscarCurp() {
@@ -236,8 +278,8 @@ export class AddPlayerComponent implements OnDestroy {
       return;
     }
 
-    if (!this.rostroBase64) {
-      this.error.set('Captura el rostro del jugador antes de guardar.');
+    if (!this.rostroBase64 || !this.faceValidated()) {
+      this.error.set('Captura y valida el rostro del jugador antes de guardar.');
       return;
     }
 

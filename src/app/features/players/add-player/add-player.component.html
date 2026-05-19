@@ -18,15 +18,21 @@
       <div class="camera-preview">
         <video #videoFace autoplay playsinline muted></video>
 
+        @if (faceCapture() && rostroBase64) {
+          <img class="captured-face" [src]="rostroBase64" alt="Rostro capturado" />
+        }
+
         @if (!cameraOn()) {
           <div class="camera-placeholder">
             <div class="face-avatar">Persona</div>
-            <p>Inicia la camara para registrar el rostro del jugador</p>
+            @if (!faceCapture()) {
+              <p>Inicia la camara para registrar el rostro del jugador</p>
+            }
           </div>
         }
 
         @if (faceCapture()) {
-          <div class="capture-badge">Rostro capturado</div>
+          <div class="capture-badge">Rostro validado</div>
         }
       </div>
 
@@ -48,16 +54,24 @@
           Iniciar camara
         </button>
 
-        <button class="btn btn-outline btn-sm" type="button" (click)="capturarRostro()" [disabled]="!cameraOn()">
-          Capturar rostro
+        <button class="btn btn-outline btn-sm" type="button" (click)="capturarRostro()" [disabled]="!cameraOn() || faceChecking()">
+          {{ faceChecking() ? 'Validando...' : 'Capturar y validar' }}
         </button>
+
+        @if (faceCapture()) {
+          <button class="btn btn-outline btn-sm" type="button" (click)="repetirCaptura()">
+            Repetir captura
+          </button>
+        }
 
         <button class="btn btn-ghost btn-sm" type="button" (click)="detenerCamaraRostro()" [disabled]="!cameraOn()">
           Detener
         </button>
       </div>
 
-      <p>Se usara para reconocimiento facial durante las sesiones de entrenamiento.</p>
+      <p class="face-status" [class.valid]="faceValidated()" [class.invalid]="!faceValidated() && !!faceStatus()">
+        {{ faceStatus() }}
+      </p>
     </div>
 
     <div class="form-col">
@@ -147,7 +161,7 @@
         type="button"
         style="padding:14px;"
         (click)="guardar()"
-        [disabled]="faceLoading()"
+        [disabled]="faceLoading() || !faceValidated()"
       >
         {{ faceLoading() ? 'Guardando...' : 'Guardar jugador' }}
       </button>
