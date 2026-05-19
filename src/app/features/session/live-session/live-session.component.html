@@ -1,132 +1,120 @@
 <div class="live-page fade-in">
-
-  <!-- ══════════════════════════════════════
-       SETUP SCREEN (before session starts)
-  ══════════════════════════════════════ -->
   @if (!sessionStarted()) {
-  <div class="setup-screen">
-    <header class="setup-header">
-      <button class="btn-icon" routerLink="/app/dashboard">←</button>
-      <div>
-        <h2>Nueva Sesión</h2>
-        <p>Configura los datos antes de comenzar</p>
+    <div class="setup-screen">
+      <header class="setup-header">
+        <button class="btn-icon" routerLink="/app/dashboard">&larr;</button>
+        <div>
+          <h2>Nueva Sesion</h2>
+          <p>Configura los datos antes de comenzar</p>
+        </div>
+      </header>
+
+      <div class="setup-body">
+        @if (setupError()) {
+          <div class="error-msg">{{ setupError() }}</div>
+        }
+
+        <div class="field">
+          <label>Titulo de la sesion *</label>
+          <input type="text" placeholder="ej. Entrenamiento martes" [(ngModel)]="titulo"/>
+        </div>
+
+        <div class="field">
+          <label>Descripcion</label>
+          <textarea rows="3" placeholder="Observaciones o plan del entrenamiento"
+                    [(ngModel)]="descripcion" style="resize:none;"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Clase *</label>
+          <select [(ngModel)]="claseId">
+            <option [ngValue]="null" disabled>Selecciona una clase</option>
+            @for (c of clases(); track c.id) {
+              <option [ngValue]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Duracion estimada (min)</label>
+          <input type="number" placeholder="90" [(ngModel)]="duracionMin"/>
+        </div>
+
+        <button class="btn btn-primary btn-full setup-btn"
+                [disabled]="saving()"
+                (click)="iniciarSesion()">
+          {{ saving() ? 'Iniciando...' : 'Iniciar sesion en vivo' }}
+        </button>
+        <button class="btn btn-ghost btn-full" routerLink="/app/dashboard">Cancelar</button>
       </div>
-    </header>
-
-    <div class="setup-body">
-      @if (setupError()) {
-        <div class="error-msg">{{ setupError() }}</div>
-      }
-
-      <div class="field">
-        <label>Título de la sesión *</label>
-        <input type="text" placeholder="ej. Entrenamiento martes, Práctica tiros libres…"
-               [(ngModel)]="titulo"/>
-      </div>
-
-      <div class="field">
-        <label>Descripción</label>
-        <textarea rows="3" placeholder="Observaciones o plan del entrenamiento…"
-                  [(ngModel)]="descripcion" style="resize:none;"></textarea>
-      </div>
-
-      <div class="field">
-        <label>Clase *</label>
-        <select [(ngModel)]="claseId">
-          <option [ngValue]="null" disabled>Selecciona una clase</option>
-          @for (c of clases(); track c.id) {
-            <option [ngValue]="c.id">{{ c.nombre }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Duración estimada (min)</label>
-        <input type="number" placeholder="90" [(ngModel)]="duracionMin"/>
-      </div>
-
-      <button class="btn btn-primary btn-full setup-btn"
-              [disabled]="saving()"
-              (click)="iniciarSesion()">
-        {{ saving() ? 'Iniciando…' : '▶ Iniciar sesión en vivo' }}
-      </button>
-      <button class="btn btn-ghost btn-full" routerLink="/app/dashboard">Cancelar</button>
     </div>
-  </div>
   }
 
-  <!-- ══════════════════════════════════════
-       LIVE SESSION SCREEN
-  ══════════════════════════════════════ -->
   @if (sessionStarted()) {
+    <header class="live-header">
+      <button class="btn-icon" (click)="finalizarSesion()">&larr;</button>
+      <div class="live-center">
+        <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
+        <span class="timer">{{ timerDisplay }}</span>
+      </div>
+      <button class="btn btn-danger btn-sm" (click)="finalizarSesion()">Finalizar</button>
+    </header>
 
-  <!-- Top bar -->
-  <header class="live-header">
-    <button class="btn-icon" (click)="finalizarSesion()">←</button>
-    <div class="live-center">
-      <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
-      <span class="timer">{{ timerDisplay }}</span>
-    </div>
-    <button class="btn btn-danger btn-sm" (click)="finalizarSesion()">Finalizar</button>
-  </header>
-
-  <!-- Pose / Camera area -->
-  <div class="pose-area">
-    <svg width="180" height="280" viewBox="0 0 180 280">
-      <circle cx="90" cy="40" r="28" fill="none" stroke="#ff6b35" stroke-width="5"/>
-      <line x1="90" y1="68" x2="90" y2="150" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <line x1="90" y1="90" x2="35" y2="135" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="35" cy="135" r="7" fill="#ff6b35"/>
-      <line x1="35" y1="135" x2="15" y2="180" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="15" cy="180" r="7" fill="#ff6b35"/>
-      <line x1="90" y1="90" x2="145" y2="75" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="145" cy="75" r="7" fill="#ff6b35"/>
-      <line x1="145" y1="75" x2="165" y2="35" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="165" cy="35" r="7" fill="#ff6b35"/>
-      <line x1="90" y1="150" x2="60" y2="210" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="60" cy="210" r="7" fill="#ff6b35"/>
-      <line x1="60" y1="210" x2="55" y2="270" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="55" cy="270" r="7" fill="#ff6b35"/>
-      <line x1="90" y1="150" x2="120" y2="210" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="120" cy="210" r="7" fill="#ff6b35"/>
-      <line x1="120" y1="210" x2="125" y2="270" stroke="#ff6b35" stroke-width="5" stroke-linecap="round"/>
-      <circle cx="125" cy="270" r="7" fill="#ff6b35"/>
-      <circle cx="155" cy="20" r="14" fill="none" stroke="#ff8c5a" stroke-width="3"/>
-    </svg>
-    <span class="pose-label">Vista de cámara · {{ titulo }}</span>
-  </div>
-
-  <!-- Panel inferior -->
-  <div class="bottom-panel">
-    <div class="detected-label">Jugadores detectados</div>
-    <div class="detected-list">
-      @for (j of jugadoresDetectados; track j.initials) {
-        <div class="player-chip">
-          <div class="avatar avatar-sm" [style.background]="j.color">{{ j.initials }}</div>
-          <div class="dot" [style.background]="estadoColor(j.estado)"></div>
-          <span>{{ j.nombre }}</span>
-        </div>
+    <div class="camera-toolbar">
+      @if (cameras().length > 1) {
+        <select [(ngModel)]="selectedCameraId" (change)="cambiarCamara()">
+          @for (camera of cameras(); track camera.deviceId) {
+            <option [ngValue]="camera.deviceId">{{ camera.label }}</option>
+          }
+        </select>
       }
+      <button class="btn btn-outline btn-sm" type="button" (click)="iniciarCamaraAnalisis()">Reiniciar camara</button>
     </div>
 
-    <div class="ultimo-tiro">
-      <div class="ut-title">Último tiro detectado</div>
-      <div class="ut-nombre">{{ ultimoTiro.nombre }}</div>
-      <div class="ut-hora">{{ ultimoTiro.hora }}</div>
-      <div class="ut-angulos">
-        @for (a of ultimoTiro.angulos; track a) {
-          <span class="chip chip-blue">{{ a }}</span>
-        }
+    @if (cameraError()) {
+      <div class="error-msg live-error">{{ cameraError() }}</div>
+    }
+
+    <div class="pose-area">
+      <video #analysisVideo autoplay playsinline muted></video>
+      <canvas #overlayCanvas class="pose-overlay"></canvas>
+      <canvas #captureCanvas hidden></canvas>
+
+      <div class="pose-hud">
+        <span [class.ok]="poseDetected()">{{ poseDetected() ? 'Cuerpo detectado' : 'Buscando cuerpo' }}</span>
+        <span>{{ bodyStatus() }}</span>
       </div>
     </div>
-  </div>
 
-  <!-- Stats row -->
-  <div class="stats-row">
-    <div class="stat-cell"><div class="lbl">Tiros</div><div class="val">{{ stats.tiros }}</div></div>
-    <div class="stat-cell"><div class="lbl">Jugadores</div><div class="val">{{ stats.jugadores }}</div></div>
-    <div class="stat-cell"><div class="lbl">Promedio</div><div class="val orange">{{ stats.promedio }}</div></div>
-  </div>
+    <div class="bottom-panel">
+      <div class="detected-label">Jugador reconocido</div>
+      @if (playerDetected()) {
+        <div class="player-chip">
+          <div class="avatar avatar-sm">{{ playerDetected()!.nombre.slice(0, 2).toUpperCase() }}</div>
+          <div class="dot" style="background: var(--green)"></div>
+          <span>{{ playerDetected()!.nombre }} · {{ (playerDetected()!.confianza * 100).toFixed(0) }}%</span>
+        </div>
+      } @else {
+        <div class="empty-live">Sin jugador identificado aun</div>
+      }
 
-  } <!-- end sessionStarted -->
+      <div class="ultimo-tiro">
+        <div class="ut-title">Puntos y angulos analizados</div>
+        <div class="ut-angulos">
+          @for (a of angleEntries(); track a.key) {
+            <span class="chip chip-blue">{{ a.label }} {{ a.value }}°</span>
+          }
+          @if (angleEntries().length === 0) {
+            <span class="empty-live">Esperando deteccion de postura</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-cell"><div class="lbl">Pose</div><div class="val">{{ poseDetected() ? 'OK' : '--' }}</div></div>
+      <div class="stat-cell"><div class="lbl">Jugador</div><div class="val">{{ playerDetected() ? 'OK' : '--' }}</div></div>
+      <div class="stat-cell"><div class="lbl">Sesion</div><div class="val orange">#{{ sessionId }}</div></div>
+    </div>
+  }
 </div>

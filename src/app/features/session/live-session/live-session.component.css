@@ -1,13 +1,19 @@
-/* live-session.component.css – BasketPose dark theme */
-.live-page { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: var(--bg); }
+/* live-session.component.css - BasketPose dark theme */
+.live-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
 
-/* ── Setup screen ── */
 .setup-screen {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: var(--bg);
 }
+
 .setup-header {
   display: flex;
   align-items: center;
@@ -16,8 +22,18 @@
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
 }
-.setup-header h2 { font-size: 1rem; font-weight: 700; color: var(--text); }
-.setup-header p  { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+.setup-header h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.setup-header p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
 
 .setup-body {
   flex: 1;
@@ -29,7 +45,11 @@
   width: 100%;
   margin: 0 auto;
 }
-.setup-btn { padding: 14px !important; margin-top: 8px; }
+
+.setup-btn {
+  padding: 14px !important;
+  margin-top: 8px;
+}
 
 .error-msg {
   background: rgba(239,68,68,.12);
@@ -40,7 +60,10 @@
   font-size: 0.82rem;
 }
 
-/* ── Live header ── */
+.live-error {
+  margin: 10px 16px 0;
+}
+
 .live-header {
   display: flex;
   align-items: center;
@@ -50,8 +73,14 @@
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.live-center { display: flex; align-items: center; gap: 14px; }
-.live-badge  {
+
+.live-center {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.live-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -64,40 +93,89 @@
   font-weight: 700;
   letter-spacing: 0.5px;
 }
+
 .live-dot {
-  width: 7px; height: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--red);
   animation: blink 1s infinite;
 }
-.timer { font-size: 1.2rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
 
-/* Camera / pose area */
+.timer {
+  font-size: 1.2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.camera-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.camera-toolbar select {
+  min-width: 0;
+  flex: 1;
+  padding: 8px 10px;
+}
+
 .pose-area {
   flex: 1;
   min-height: 0;
-  background: var(--bg2);
+  background: #050507;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-}
-.pose-label {
-  position: absolute;
-  bottom: 12px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.72rem;
-  color: var(--muted);
-  background: rgba(0,0,0,.3);
-  padding: 4px 12px;
-  border-radius: 20px;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 90%;
 }
 
-/* Bottom panel */
+.pose-area video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  background: #050507;
+}
+
+.pose-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.pose-hud {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pose-hud span {
+  font-size: 0.72rem;
+  color: var(--yellow);
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.pose-hud span.ok {
+  color: var(--green);
+  border-color: rgba(16,185,129,.35);
+}
+
 .bottom-panel {
   background: var(--bg2);
   border-top: 1px solid var(--border);
@@ -106,47 +184,100 @@
   flex-direction: column;
   gap: 10px;
   flex-shrink: 0;
+  max-height: 230px;
+  overflow: auto;
 }
-.detected-label { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.detected-list  { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.detected-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .player-chip {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   background: var(--bg3);
   border-radius: 20px;
   padding: 5px 12px 5px 5px;
   border: 1px solid var(--border);
+  width: fit-content;
 }
-.player-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.player-chip span { font-size: 0.78rem; font-weight: 500; color: var(--text); }
 
-/* Last shot */
+.player-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.player-chip span {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.empty-live {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .ultimo-tiro {
   background: var(--bg3);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   border: 1px solid var(--border);
 }
-.ut-title  { font-size: 0.78rem; font-weight: 700; color: var(--text); margin-bottom: 5px; }
-.ut-nombre { font-size: 0.875rem; font-weight: 600; color: var(--text); }
-.ut-hora   { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
-.ut-angulos { display: flex; gap: 6px; flex-wrap: wrap; }
 
-/* Stats row */
+.ut-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.ut-angulos {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .stats-row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
+
 .stat-cell {
   background: var(--bg2);
   padding: 14px 8px;
   text-align: center;
   border-right: 1px solid var(--border);
 }
-.stat-cell:last-child { border-right: none; }
-.stat-cell .lbl  { font-size: 0.68rem; color: var(--muted); margin-bottom: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
-.stat-cell .val  { font-size: 1.3rem; font-weight: 800; color: var(--text); }
-.stat-cell .val.orange { color: var(--orange); }
+
+.stat-cell:last-child {
+  border-right: none;
+}
+
+.stat-cell .lbl {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.stat-cell .val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.stat-cell .val.orange {
+  color: var(--orange);
+}
