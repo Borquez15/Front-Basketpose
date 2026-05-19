@@ -2,7 +2,10 @@
   <header class="topbar">
     <div class="topbar-left">
       <button class="btn-icon" routerLink="/app/jugadores">←</button>
-      <div><h2>Agregar Jugador</h2><p>Registro de nuevo jugador</p></div>
+      <div>
+        <h2>Agregar Jugador</h2>
+        <p>Registro de nuevo jugador</p>
+      </div>
     </div>
   </header>
 
@@ -11,35 +14,66 @@
       <div class="error-msg">{{ error() }}</div>
     }
 
-    <!-- Face capture -->
     <div class="face-box" [class.captured]="faceCapture()">
-      <div class="face-avatar">{{ faceCapture() ? '🙂' : '👤' }}</div>
-      <button class="btn btn-outline btn-sm" (click)="capturarRostro()">
-        {{ faceCapture() ? '✅ Rostro capturado' : '📷 Capturar rostro' }}
-      </button>
-      <p>Se usará para reconocimiento facial durante las sesiones</p>
+      <div class="camera-preview">
+        <video #videoFace autoplay playsinline muted></video>
+
+        @if (!cameraOn()) {
+          <div class="camera-placeholder">
+            <div class="face-avatar">👤</div>
+            <p>Inicia la cámara para registrar el rostro del jugador</p>
+          </div>
+        }
+
+        @if (faceCapture()) {
+          <div class="capture-badge">✅ Rostro capturado</div>
+        }
+      </div>
+
+      <canvas #canvasFace hidden></canvas>
+
+      <div class="face-actions">
+        <button class="btn btn-outline btn-sm" type="button" (click)="iniciarCamaraRostro()">
+          📱 Iniciar cámara
+        </button>
+
+        <button class="btn btn-outline btn-sm" type="button" (click)="capturarRostro()" [disabled]="!cameraOn()">
+          📷 Capturar rostro
+        </button>
+
+        <button class="btn btn-ghost btn-sm" type="button" (click)="detenerCamaraRostro()" [disabled]="!cameraOn()">
+          Detener
+        </button>
+      </div>
+
+      <p>Se usará para reconocimiento facial durante las sesiones de entrenamiento.</p>
     </div>
 
     <div class="form-col">
-
-      <!-- CURP lookup -->
       <div class="curp-section">
         <div class="field">
           <label>Buscar por CURP (Opcional)</label>
           <div class="curp-row">
-            <input type="text" placeholder="AAAA000000XXXXXXX0" [(ngModel)]="curp"
-                   (keyup.enter)="buscarCurp()" style="text-transform:uppercase;"/>
-            <button class="btn btn-outline btn-sm" (click)="buscarCurp()" [disabled]="curpLoading()">
+            <input
+              type="text"
+              placeholder="AAAA000000XXXXXXX0"
+              [(ngModel)]="curp"
+              (keyup.enter)="buscarCurp()"
+              maxlength="18"
+              style="text-transform:uppercase;"
+            />
+
+            <button class="btn btn-outline btn-sm" type="button" (click)="buscarCurp()" [disabled]="curpLoading()">
               {{ curpLoading() ? '⏳' : '🔍 Buscar' }}
             </button>
           </div>
         </div>
+
         @if (curpMsg()) {
           <div class="curp-msg" [class.found]="curpFound()">{{ curpMsg() }}</div>
         }
       </div>
 
-      <!-- Player data -->
       <div class="field">
         <label>Nombre completo *</label>
         <input type="text" placeholder="Nombre del jugador" [(ngModel)]="nombre"/>
@@ -55,6 +89,7 @@
           <label>Edad</label>
           <input type="number" placeholder="18" [(ngModel)]="edad"/>
         </div>
+
         <div class="field">
           <label>N° Camiseta</label>
           <input type="text" placeholder="ej. 23" [(ngModel)]="numeroCamiseta"/>
@@ -77,6 +112,7 @@
           <label>Estatura (cm)</label>
           <input type="number" placeholder="180" [(ngModel)]="estatura"/>
         </div>
+
         <div class="field">
           <label>Peso (kg)</label>
           <input type="number" placeholder="75" [(ngModel)]="peso"/>
@@ -94,10 +130,20 @@
       </div>
 
       <hr class="divider"/>
-      <button class="btn btn-primary btn-full" style="padding:14px;" (click)="guardar()">
-        Guardar jugador
+
+      <button
+        class="btn btn-primary btn-full"
+        type="button"
+        style="padding:14px;"
+        (click)="guardar()"
+        [disabled]="faceLoading()"
+      >
+        {{ faceLoading() ? 'Guardando...' : 'Guardar jugador' }}
       </button>
-      <button class="btn btn-ghost btn-full" routerLink="/app/jugadores">Cancelar</button>
+
+      <button class="btn btn-ghost btn-full" type="button" routerLink="/app/jugadores">
+        Cancelar
+      </button>
     </div>
   </main>
 </div>
