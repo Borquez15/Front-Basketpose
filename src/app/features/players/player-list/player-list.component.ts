@@ -28,6 +28,8 @@ export class PlayerListComponent {
   posFilter = signal('Todos');
   posiciones = ['Todos', 'Base', 'Escolta', 'Alero', 'Ala-Pivot', 'Pivot'];
   selectedPlayer = signal<Jugador | null>(null);
+  reportStatus = signal('');
+  reportError = signal('');
 
   filtered() {
     const lista = this.jugadores() || [];
@@ -40,7 +42,31 @@ export class PlayerListComponent {
   }
 
   verDetalles(j: Jugador) {
+    this.reportStatus.set('');
+    this.reportError.set('');
     this.selectedPlayer.set(j);
+  }
+
+  correoJugador(jugador?: Jugador | null): string {
+    const notas = jugador?.notas || '';
+    const match = notas.match(/correo:\s*([^\s,;]+@[^\s,;]+)/i);
+    return match?.[1] || '';
+  }
+
+  enviarReporte() {
+    const jugador = this.selectedPlayer();
+    if (!jugador?.id) return;
+    this.reportStatus.set('');
+    this.reportError.set('');
+    const email = this.correoJugador(jugador);
+    this.dataService.enviarReporteJugador(jugador.id, email || undefined).subscribe({
+      next: res => {
+        this.reportStatus.set(`Reporte enviado${res.email ? ' a ' + res.email : ''}.`);
+      },
+      error: err => {
+        this.reportError.set(err?.error?.detail || 'No se pudo enviar el reporte.');
+      }
+    });
   }
 
   scoreChip(pts: number): string {

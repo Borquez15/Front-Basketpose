@@ -1,39 +1,40 @@
 <div class="page fade-in">
   @if (clase(); as c) {
-  <header class="topbar">
-    <div class="topbar-left">
-      <button class="btn-icon" routerLink="/app/clases">←</button>
-      <div>
-        <h2>{{ c.nombre }}</h2>
-        <p>{{ c.totalJugadores }} jugadores activos</p>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn-icon" routerLink="/app/clases" type="button">&larr;</button>
+        <div>
+          <h2>{{ c.nombre }}</h2>
+          <p>{{ c.totalJugadores }} jugadores activos</p>
+        </div>
       </div>
-    </div>
-    <button class="btn btn-primary btn-sm" (click)="mostrarFormSesion.set(true)">▶ Nueva Sesión</button>
-  </header>
+      <button class="btn btn-primary btn-sm" type="button" (click)="iniciarNuevaSesion(c.id)">
+        Iniciar sesion
+      </button>
+    </header>
   } @else {
-  <header class="topbar">
-    <button class="btn-icon" routerLink="/app/clases">←</button>
-    <h2>Cargando...</h2>
-  </header>
+    <header class="topbar">
+      <button class="btn-icon" routerLink="/app/clases" type="button">&larr;</button>
+      <h2>Cargando...</h2>
+    </header>
   }
 
   <div class="tabs-wrap">
     <div class="tabs">
-      <div class="tab" [class.active]="activeTab()===0" (click)="setTab(0)">Jugadores</div>
-      <div class="tab" [class.active]="activeTab()===1" (click)="setTab(1)">Sesiones</div>
-      <div class="tab" [class.active]="activeTab()===2" (click)="setTab(2)">Auxiliares</div>
-      <div class="tab" [class.active]="activeTab()===3" (click)="setTab(3)">Invitaciones</div>
+      <button class="tab" type="button" [class.active]="activeTab()===0" (click)="setTab(0)">Jugadores</button>
+      <button class="tab" type="button" [class.active]="activeTab()===1" (click)="setTab(1)">Sesiones</button>
+      <button class="tab" type="button" [class.active]="activeTab()===2" (click)="setTab(2)">Auxiliares</button>
+      <button class="tab" type="button" [class.active]="activeTab()===3" (click)="setTab(3)">Invitaciones</button>
     </div>
   </div>
 
   <main class="content">
-
     @if (activeTab() === 0) {
       @if (jugadores().length === 0) {
         <div class="empty-state-sm">No hay jugadores en esta clase.</div>
       }
       @for (j of jugadores(); track j.id) {
-        <div class="player-row" [routerLink]="['/app/analisis', j.id]">
+        <div class="player-row" [routerLink]="['/app/reporte', j.id]">
           <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
           <div class="player-info">
             <div class="player-name">{{ j.nombre }}</div>
@@ -42,85 +43,144 @@
               <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">{{ j.puntuacionPromedio }} pts</span>
             </div>
           </div>
-          <span class="arrow">›</span>
+          <span class="arrow">&rsaquo;</span>
         </div>
       }
     }
 
     @if (activeTab() === 1) {
+      <section class="session-summary card">
+        <div class="summary-head">
+          <div>
+            <h3>Resumen de sesiones</h3>
+            <p>Vista rapida del trabajo registrado para esta clase.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" type="button" (click)="iniciarNuevaSesion()">
+            Nueva sesion
+          </button>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-stat">
+            <span class="stat-label">Sesiones</span>
+            <strong>{{ sessionStats().total }}</strong>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">Tiros</span>
+            <strong>{{ sessionStats().totalTiros }}</strong>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">Promedio</span>
+            <strong>{{ sessionStats().promedio || '--' }}</strong>
+          </div>
+          <div class="summary-stat">
+            <span class="stat-label">Ultima</span>
+            <strong>{{ formatFecha(sessionStats().ultimaFecha) }}</strong>
+          </div>
+        </div>
+      </section>
+
       @if (sesiones().length === 0) {
-        <div class="empty-state-sm">No hay sesiones registradas para esta clase.</div>
+        <div class="empty-state-sm session-empty">
+          <p>No hay sesiones registradas para esta clase.</p>
+          <button class="btn btn-primary btn-sm" type="button" (click)="iniciarNuevaSesion()">
+            Iniciar primera sesion
+          </button>
+        </div>
       }
+
       @for (s of sesiones(); track s.id) {
-        <div class="sesion-row card">
-          <div class="sesion-info">
-            <div class="sesion-titulo">{{ s.titulo }}</div>
-            <div class="sesion-meta">
-              <span class="chip chip-gray">{{ formatFecha(s.fecha) }}</span>
+        <article class="sesion-card card">
+          <div class="sesion-main">
+            <div class="sesion-info">
+              <div class="sesion-titulo">{{ s.titulo }}</div>
+              <div class="sesion-meta">
+                <span class="chip chip-gray">{{ formatFecha(s.fecha) }}</span>
+                <span class="chip chip-blue">{{ duracionSesion(s) }}</span>
+              </div>
+            </div>
+            <span [class]="scoreChip(s.puntuacionPromedio ?? 0)">
+              {{ s.puntuacionPromedio || '--' }} pts
+            </span>
+          </div>
+
+          <div class="session-card-summary">
+            <span>Resumen de la sesion</span>
+            <p>{{ resumenSesion(s) }}</p>
+          </div>
+
+          <div class="session-metrics">
+            <div>
+              <span>Tiros</span>
+              <strong>{{ s.totalTiros ?? 0 }}</strong>
+            </div>
+            <div>
+              <span>Jugadores</span>
+              <strong>{{ s.totalJugadores ?? 0 }}</strong>
+            </div>
+            <div>
+              <span>Error frecuente</span>
+              <strong>{{ s.errorMasFrecuente || '--' }}</strong>
             </div>
           </div>
-          <span class="arrow">›</span>
-        </div>
+        </article>
       }
     }
 
     @if (activeTab() === 2) {
-      <div class="player-row">
-        <div class="avatar" style="background:#3b82f6;">RA</div>
-        <div class="player-info">
-          <div class="player-name">Roberto Álvarez</div>
-          <div class="player-meta"><span class="chip chip-blue">Auxiliar</span></div>
+      @if (auxiliares().length === 0) {
+        <div class="empty-state-sm session-empty">
+          <p>No hay auxiliares en esta clase.</p>
+          <button class="btn btn-primary btn-sm" type="button" (click)="setTab(3)">Invitar auxiliar</button>
         </div>
-      </div>
-      <button class="btn btn-outline btn-sm" style="margin-top:10px;">+ Invitar auxiliar</button>
+      }
+      @for (a of auxiliares(); track a.id_miembro) {
+        <div class="player-row">
+          <div class="avatar" style="background:#3b82f6;">{{ (a.nombre_usuario || 'AX').slice(0, 2).toUpperCase() }}</div>
+          <div class="player-info">
+            <div class="player-name">{{ a.nombre_usuario || a.email_usuario }}</div>
+            <div class="player-meta">
+              <span class="chip chip-blue">{{ a.rol === 'entrenador' ? 'Auxiliar' : a.rol }}</span>
+              <span class="chip chip-gray">{{ a.email_usuario }}</span>
+            </div>
+          </div>
+        </div>
+      }
     }
 
     @if (activeTab() === 3) {
       <div class="invite-option">
-        <h4>✉️ Invitar por correo</h4>
-        <div class="field"><input type="email" placeholder="correo@ejemplo.com"/></div>
+        <h4>Invitar por correo</h4>
+        @if (inviteError()) {
+          <div class="chip chip-red">{{ inviteError() }}</div>
+        }
+        @if (inviteStatus()) {
+          <div class="chip chip-green">{{ inviteStatus() }}</div>
+        }
+        <div class="field">
+          <input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="inviteEmail"/>
+        </div>
         <div class="field">
           <label>Rol</label>
-          <select><option>jugador</option><option>auxiliar</option></select>
+          <select [(ngModel)]="inviteRole">
+            <option value="entrenador">Auxiliar</option>
+            <option value="jugador">Jugador</option>
+          </select>
         </div>
-        <button class="btn btn-primary btn-sm">Enviar invitación</button>
+        <button class="btn btn-primary btn-sm" type="button" (click)="enviarInvitacion()">Enviar invitacion</button>
       </div>
 
       <div class="invite-option" style="margin-top:12px;">
-        <h4>🔗 Compartir código</h4>
+        <h4>Compartir codigo</h4>
         <div class="code-box">
           <span class="code-text">BK-7X3P</span>
-          <button class="btn btn-ghost btn-sm" (click)="copyCode()">
-            {{ codeCopied() ? '✅ Copiado' : '📋 Copiar' }}
+          <button class="btn btn-ghost btn-sm" type="button" (click)="copyCode()">
+            {{ codeCopied() ? 'Copiado' : 'Copiar' }}
           </button>
         </div>
-        <div class="code-exp">Expira en 48 horas · Solo jugadores</div>
-        <button class="btn btn-outline btn-sm">Generar nuevo código</button>
+        <div class="code-exp">Expira en 48 horas - Solo jugadores</div>
+        <button class="btn btn-outline btn-sm" type="button">Generar nuevo codigo</button>
       </div>
     }
-
   </main>
-
-  <button class="fab" routerLink="/app/jugadores/nuevo">+</button>
-
-  @if (mostrarFormSesion()) {
-    <div class="modal-overlay fade-in">
-      <div class="modal-content card">
-        <h3 style="margin-top: 0; margin-bottom: 6px; color: var(--text);">Configurar Sesión</h3>
-        <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
-          Ingresa los detalles antes de encender la cámara.
-        </p>
-
-        <div class="field">
-          <label>Título de la sesión *</label>
-          <input type="text" placeholder="Ej. Práctica de Tiros Libres" [(ngModel)]="tituloSesion">
-        </div>
-
-        <div style="display: flex; gap: 12px; margin-top: 24px;">
-          <button class="btn btn-ghost" style="flex: 1;" (click)="mostrarFormSesion.set(false)">Cancelar</button>
-          <button class="btn btn-primary" style="flex: 1;" (click)="iniciarNuevaSesion()">Empezar</button>
-        </div>
-      </div>
-    </div>
-  }
 </div>

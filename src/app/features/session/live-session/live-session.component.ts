@@ -32,6 +32,11 @@ interface LiveFrameResponse {
   pose_detected: boolean;
   landmarks: PoseLandmark[];
   angles: Record<string, number>;
+  ball?: { x: number; y: number; radius: number } | null;
+  shot_attempt?: boolean;
+  shot_registered?: boolean;
+  shot_score?: number;
+  analisis_id?: number;
   jugador?: {
     id_jugador: number;
     nombre: string;
@@ -54,6 +59,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private route = inject(ActivatedRoute);
   clases = toSignal(this.data.getClases(), { initialValue: [] });
+  jugadores = toSignal(this.data.getJugadores(), { initialValue: [] });
 
   @ViewChild('analysisVideo') analysisVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
@@ -67,6 +73,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   titulo       = '';
   descripcion  = '';
   claseId: number | null = null;
+  jugadorManualId: number | null = null;
   duracionMin: number | null = 90;
   sessionId: number | null = null;
 
@@ -83,8 +90,12 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   poseDetected = signal(false);
   playerDetected = signal<{ id_jugador: number; nombre: string; confianza: number } | null>(null);
   angles = signal<Record<string, number>>({});
+  ballDetected = signal(false);
+  lastShotScore = signal<number | null>(null);
+  manualShotSaving = signal(false);
 
   stats = { tiros: 0, jugadores: 0, promedio: 0 };
+  private playerIds = new Set<number>();
 
   private readonly poseConnections = [
     [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
@@ -92,6 +103,11 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     [23, 25], [25, 27], [24, 26], [26, 28],
     [27, 31], [28, 32], [15, 19], [16, 20]
   ];
+
+  jugadoresClase() {
+    const id = this.claseId;
+    return this.jugadores().filter(jugador => !id || jugador.idClase === id);
+  }
 
   ngOnInit() {
     const params = this.route.snapshot.queryParamMap;
@@ -124,7 +140,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     const payload = {
       id_clase:     this.claseId,
       titulo:       this.titulo.trim(),
-      descripcion:  this.descripcion.trim() || null,
+      descripcion:  this.descripcion.trim() || 'Entrenamiento de tiros libres',
       fecha_sesion: new Date().toISOString().split('T')[0],
       duracion_min: this.duracionMin ?? 90,
     };
@@ -262,14 +278,28 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     this.analysisBusy = true;
     this.http.post<LiveFrameResponse>(`${environment.apiUrl}/analisis/frame`, {
       id_sesion: this.sessionId,
-      image_base64
+      image_base64,
+      id_jugador_manual: this.jugadorManualId
     }).subscribe({
       next: (res) => {
         this.analysisBusy = false;
         this.poseDetected.set(res.pose_detected);
         this.angles.set(res.angles || {});
         this.playerDetected.set(res.jugador ?? null);
+        this.ballDetected.set(!!res.ball);
         this.bodyStatus.set(res.mensaje);
+        if (res.jugador?.id_jugador) {
+          this.playerIds.add(res.jugador.id_jugador);
+          this.stats.jugadores = this.playerIds.size;
+        }
+        if (res.shot_registered) {
+          this.stats.tiros += 1;
+          if (typeof res.shot_score === 'number') {
+            const prevTotal = this.stats.promedio * (this.stats.tiros - 1);
+            this.stats.promedio = Math.round((prevTotal + res.shot_score) / this.stats.tiros);
+            this.lastShotScore.set(res.shot_score);
+          }
+        }
         this.dibujarPuntos(res.landmarks || []);
       },
       error: (err) => {
@@ -278,6 +308,59 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
         this.bodyStatus.set(msg);
       }
     });
+  }
+
+  registrarTiroLibreManual() {
+    const jugadorId = this.playerDetected()?.id_jugador ?? this.jugadorManualId;
+    if (!this.sessionId || !jugadorId) {
+      this.bodyStatus.set('Selecciona o reconoce un jugador antes de guardar el tiro libre.');
+      return;
+    }
+
+    const score = this.calcularScoreLocal();
+    this.manualShotSaving.set(true);
+    this.http.post<any>(`${environment.apiUrl}/analisis`, {
+      id_sesion: this.sessionId,
+      id_jugador: jugadorId,
+      resultado: 'indeterminado',
+      tipo_tiro: 'tiros_libres',
+      distancia_tiro_metros: 4.57,
+      puntuacion_tecnica: score,
+      analisis_valido: true,
+      notas: 'Tiro libre guardado por observacion del entrenador durante la sesion en vivo.'
+    }).subscribe({
+      next: () => {
+        this.manualShotSaving.set(false);
+        this.stats.tiros += 1;
+        const prevTotal = this.stats.promedio * (this.stats.tiros - 1);
+        this.stats.promedio = Math.round((prevTotal + score) / this.stats.tiros);
+        this.lastShotScore.set(score);
+        this.bodyStatus.set(`Tiro libre guardado con promedio tecnico ${score} pts.`);
+      },
+      error: err => {
+        this.manualShotSaving.set(false);
+        this.bodyStatus.set(err?.error?.detail || 'No se pudo guardar el tiro libre.');
+      }
+    });
+  }
+
+  private calcularScoreLocal(): number {
+    const angles = this.angles();
+    const targets: Record<string, number> = {
+      codo_der: 165,
+      codo_izq: 165,
+      hombro_der: 110,
+      hombro_izq: 110,
+      rodilla_der: 165,
+      rodilla_izq: 165,
+      muneca_der: 170,
+      muneca_izq: 170,
+      tronco: 170
+    };
+    const scores = Object.entries(targets)
+      .filter(([key]) => typeof angles[key] === 'number')
+      .map(([key, target]) => Math.max(35, 100 - Math.abs(angles[key] - target) * 1.7));
+    return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 70;
   }
 
   private dibujarPuntos(landmarks: PoseLandmark[]) {
@@ -323,6 +406,10 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   finalizarSesion() {
     this._stopTimer();
     this.detenerCamaraAnalisis();
+    if (this.claseId) {
+      this.router.navigate(['/app/clases', this.claseId], { queryParams: { tab: 'sesiones' } });
+      return;
+    }
     this.router.navigate(['/app/dashboard']);
   }
 

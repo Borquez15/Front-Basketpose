@@ -29,6 +29,14 @@
       <div class="metric-card"><div class="metric-lbl">Total tiros</div><div class="metric-val">{{ r.totalTiros }}</div></div>
       <div class="metric-card"><div class="metric-lbl">Sesiones</div><div class="metric-val">{{ r.totalSesiones }}</div></div>
       <div class="metric-card"><div class="metric-lbl">Promedio</div><div class="metric-val orange">{{ r.puntuacionPromedio }}</div></div>
+      <div class="metric-card"><div class="metric-lbl">Efectividad</div><div class="metric-val">{{ r.porcentajeEfectividad || 0 }}%</div></div>
+      <div class="metric-card"><div class="metric-lbl">Mejora</div><div class="metric-val orange">{{ r.mejoraPuntos || 0 }} pts</div></div>
+    </div>
+
+    <div class="formula-card">
+      <div><strong>Promedio:</strong> {{ r.formulaPromedio }}</div>
+      <div><strong>Mejora:</strong> {{ r.formulaMejora }}</div>
+      <div>Inicial: {{ r.promedioInicial || 0 }} pts · Reciente: {{ r.promedioReciente || 0 }} pts · Cambio: {{ r.mejoraPorcentaje || 0 }}%</div>
     </div>
 
     <!-- Line chart -->

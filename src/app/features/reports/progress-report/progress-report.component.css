@@ -9,11 +9,27 @@
 .player-name   { font-weight: 700; font-size: 1rem; color: var(--text); }
 .player-sub    { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
 
-.metrics-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.metrics-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px; }
 .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; text-align: center; }
 .metric-lbl  { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
 .metric-val  { font-size: 1.5rem; font-weight: 800; color: var(--text); }
 .metric-val.orange { color: var(--orange); }
+
+.formula-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+}
+
+.formula-card strong { color: var(--text); }
 
 .chart-wrap  { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
 .chart-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 14px; }

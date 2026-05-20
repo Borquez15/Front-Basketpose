@@ -25,6 +25,7 @@ export const routes: Routes = [
       { path: 'clases',           loadComponent: () => import('./features/classes/class-list/class-list.component').then(m => m.ClassListComponent) },
       { path: 'clases/nueva',     loadComponent: () => import('./features/classes/create-class/create-class.component').then(m => m.CreateClassComponent) },
       { path: 'clases/:id',       loadComponent: () => import('./features/classes/class-detail/class-detail.component').then(m => m.ClassDetailComponent) },
+      { path: 'invitacion/:token', loadComponent: () => import('./features/classes/accept-invitation/accept-invitation.component').then(m => m.AcceptInvitationComponent) },
 
       // Jugadores
       { path: 'jugadores',        loadComponent: () => import('./features/players/player-list/player-list.component').then(m => m.PlayerListComponent) },

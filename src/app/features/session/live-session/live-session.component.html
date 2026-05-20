@@ -5,7 +5,7 @@
         <button class="btn-icon" routerLink="/app/dashboard">&larr;</button>
         <div>
           <h2>Nueva Sesion</h2>
-          <p>Configura los datos antes de comenzar</p>
+          <p>Entrenamiento de tiros libres</p>
         </div>
       </header>
 
@@ -20,12 +20,12 @@
 
         <div class="field">
           <label>Titulo de la sesion *</label>
-          <input type="text" placeholder="ej. Entrenamiento martes" [(ngModel)]="titulo"/>
+          <input type="text" placeholder="ej. Tiros libres martes" [(ngModel)]="titulo"/>
         </div>
 
         <div class="field">
           <label>Descripcion</label>
-          <textarea rows="3" placeholder="Observaciones o plan del entrenamiento"
+          <textarea rows="3" placeholder="Observaciones del entrenamiento de tiros libres"
                     [(ngModel)]="descripcion" style="resize:none;"></textarea>
         </div>
 
@@ -40,6 +40,16 @@
         </div>
 
         <div class="field">
+          <label>Jugador de respaldo</label>
+          <select [(ngModel)]="jugadorManualId">
+            <option [ngValue]="null">Reconocimiento facial automatico</option>
+            @for (j of jugadoresClase(); track j.id) {
+              <option [ngValue]="j.id">{{ j.nombre }} {{ j.apellidosJugador || '' }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
           <label>Duracion estimada (min)</label>
           <input type="number" placeholder="90" [(ngModel)]="duracionMin"/>
         </div>
@@ -47,7 +57,7 @@
         <button class="btn btn-primary btn-full setup-btn"
                 [disabled]="saving()"
                 (click)="iniciarSesion()">
-          {{ saving() ? 'Iniciando...' : 'Iniciar sesion en vivo' }}
+          {{ saving() ? 'Iniciando...' : 'Iniciar tiros libres en vivo' }}
         </button>
         <button class="btn btn-ghost btn-full" routerLink="/app/dashboard">Cancelar</button>
       </div>
@@ -73,6 +83,11 @@
         </select>
       }
       <button class="btn btn-outline btn-sm" type="button" (click)="iniciarCamaraAnalisis()">Reiniciar camara</button>
+      <button class="btn btn-primary btn-sm" type="button"
+              [disabled]="manualShotSaving()"
+              (click)="registrarTiroLibreManual()">
+        {{ manualShotSaving() ? 'Guardando...' : 'Guardar tiro libre' }}
+      </button>
     </div>
 
     @if (cameraError()) {
@@ -86,6 +101,7 @@
 
       <div class="pose-hud">
         <span [class.ok]="poseDetected()">{{ poseDetected() ? 'Cuerpo detectado' : 'Buscando cuerpo' }}</span>
+        <span [class.ok]="ballDetected()">{{ ballDetected() ? 'Balon detectado' : 'Buscando balon' }}</span>
         <span>{{ bodyStatus() }}</span>
       </div>
     </div>
@@ -103,7 +119,13 @@
       }
 
       <div class="ultimo-tiro">
-        <div class="ut-title">Puntos y angulos analizados</div>
+        <div class="ut-title">Tiros libres validos</div>
+        <div class="empty-live">
+          Solo se registra cuando el balon sale hacia la canasta en fase de lanzamiento.
+          @if (lastShotScore() !== null) {
+            Ultimo promedio tecnico: {{ lastShotScore() }} pts.
+          }
+        </div>
         <div class="ut-angulos">
           @for (a of angleEntries(); track a.key) {
             <span class="chip chip-blue">{{ a.label }} {{ a.value }}°</span>
@@ -117,8 +139,8 @@
 
     <div class="stats-row">
       <div class="stat-cell"><div class="lbl">Pose</div><div class="val">{{ poseDetected() ? 'OK' : '--' }}</div></div>
-      <div class="stat-cell"><div class="lbl">Jugador</div><div class="val">{{ playerDetected() ? 'OK' : '--' }}</div></div>
-      <div class="stat-cell"><div class="lbl">Sesion</div><div class="val orange">#{{ sessionId }}</div></div>
+      <div class="stat-cell"><div class="lbl">Tiros</div><div class="val">{{ stats.tiros }}</div></div>
+      <div class="stat-cell"><div class="lbl">Promedio</div><div class="val orange">{{ stats.promedio || '--' }}</div></div>
     </div>
   }
 </div>

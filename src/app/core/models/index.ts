@@ -21,7 +21,7 @@ export interface Clase {
   activa: boolean;
   totalJugadores: number;
   promedioTecnico: number;
-  rol: 'propietario' | 'auxiliar' | 'jugador';
+  rol: 'propietario' | 'administrador' | 'auxiliar' | 'entrenador' | 'jugador';
   reconocimientoFacial: boolean;
   analisisRealTime: boolean;
   reportesAutomaticos: boolean;
@@ -61,6 +61,7 @@ export interface Sesion {
   descripcion?: string; 
   claseNombre?: string;
   fecha?: Date;
+  duracionMin?: number;
   lugar?: string;
   horaInicio?: string;
   horaFin?: string;
@@ -123,7 +124,33 @@ export interface ReporteProgreso {
   totalTiros: number;
   totalSesiones: number;
   puntuacionPromedio: number;
+  porcentajeEfectividad?: number;
+  mejoraPuntos?: number;
+  mejoraPorcentaje?: number;
+  promedioInicial?: number;
+  promedioReciente?: number;
+  formulaPromedio?: string;
+  formulaMejora?: string;
   evolucion: PuntoEvolucion[];
   erroresFrecuentes: ErrorFrecuente[];
   recomendaciones: Recomendacion[];
+}
+
+export interface InvitacionClase {
+  id_invitacion: number;
+  id_clase: number;
+  email_invitado: string;
+  rol_asignado: string;
+  estado: string;
+  token?: string;
+}
+
+export interface MiembroClase {
+  id_miembro: number;
+  id_clase: number;
+  id_usuario: number;
+  rol: string;
+  activo: boolean;
+  nombre_usuario?: string;
+  email_usuario?: string;
 }

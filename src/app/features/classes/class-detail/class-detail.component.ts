@@ -1,10 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap, filter, map } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
 import { DataService } from '../../../core/services/data.service';
-import { Jugador, Sesion } from '../../../core/models/index';
+import { Jugador, MiembroClase, Sesion } from '../../../core/models/index';
 
 @Component({
   selector: 'app-class-detail',
@@ -15,15 +15,21 @@ import { Jugador, Sesion } from '../../../core/models/index';
 })
 export class ClassDetailComponent {
   private route = inject(ActivatedRoute);
-  router        = inject(Router);
-  data          = inject(DataService);
+  router = inject(Router);
+  data = inject(DataService);
 
-  activeTab     = signal(0);
-  codeCopied    = signal(false);
+  activeTab = signal(0);
+  codeCopied = signal(false);
+  inviteEmail = '';
+  inviteRole: 'jugador' | 'entrenador' = 'entrenador';
+  inviteStatus = signal('');
+  inviteError = signal('');
 
-  // Estado para el Modal flotante
-  mostrarFormSesion = signal(false);
-  tituloSesion      = '';
+  constructor() {
+    if (this.route.snapshot.queryParamMap.get('tab') === 'sesiones') {
+      this.activeTab.set(1);
+    }
+  }
 
   private claseId$ = this.route.paramMap.pipe(
     map(p => Number(p.get('id'))),
@@ -48,6 +54,33 @@ export class ClassDetailComponent {
     { initialValue: [] as Sesion[] }
   );
 
+  miembros = toSignal(
+    this.claseId$.pipe(switchMap(id => this.data.getMiembrosClase(id))),
+    { initialValue: [] as MiembroClase[] }
+  );
+
+  auxiliares = computed(() =>
+    this.miembros().filter(m => m.rol === 'entrenador' || m.rol === 'auxiliar' || m.rol === 'administrador')
+  );
+
+  sessionStats = computed(() => {
+    const sesiones = this.sesiones();
+    const totalTiros = sesiones.reduce((sum, sesion) => sum + (sesion.totalTiros ?? 0), 0);
+    const scores = sesiones
+      .map(sesion => sesion.puntuacionPromedio ?? 0)
+      .filter(score => score > 0);
+    const promedio = scores.length
+      ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+      : 0;
+
+    return {
+      total: sesiones.length,
+      totalTiros,
+      promedio,
+      ultimaFecha: sesiones[0]?.fecha
+    };
+  });
+
   setTab(i: number) { this.activeTab.set(i); }
 
   copyCode() {
@@ -58,28 +91,58 @@ export class ClassDetailComponent {
     setTimeout(() => this.codeCopied.set(false), 2000);
   }
 
+  enviarInvitacion() {
+    this.inviteStatus.set('');
+    this.inviteError.set('');
+    const clase = this.clase();
+    const email = this.inviteEmail.trim();
+    if (!clase?.id) return;
+    if (!email) {
+      this.inviteError.set('Escribe el correo de la persona invitada.');
+      return;
+    }
+
+    this.data.crearInvitacionClase(clase.id, email, this.inviteRole).subscribe({
+      next: () => {
+        const rol = this.inviteRole === 'entrenador' ? 'auxiliar' : 'jugador';
+        this.inviteStatus.set(`Invitacion enviada para unirse como ${rol}.`);
+        this.inviteEmail = '';
+      },
+      error: err => {
+        this.inviteError.set(err?.error?.detail || 'No se pudo enviar la invitacion.');
+      }
+    });
+  }
+
   scoreChip(pts: number): string {
     if (pts >= 85) return 'chip chip-green';
     if (pts >= 70) return 'chip chip-yellow';
     return 'chip chip-red';
   }
 
-  iniciarNuevaSesion() {
-    if (!this.tituloSesion.trim()) return;
-    const claseActual = this.clase();
-    if (!claseActual?.id) return;
+  iniciarNuevaSesion(claseId?: number) {
+    const id = claseId ?? this.clase()?.id;
+    if (!id) return;
 
-    this.mostrarFormSesion.set(false);
     this.router.navigate(['/app/sesion'], {
-      queryParams: { claseId: claseActual.id, titulo: this.tituloSesion.trim() }
+      queryParams: { claseId: id }
     });
-    this.tituloSesion = '';
   }
 
   formatFecha(fecha?: Date): string {
-    if (!fecha) return '—';
+    if (!fecha) return '--';
     return new Date(fecha).toLocaleDateString('es-MX', {
-      day: '2-digit', month: 'short', year: 'numeric'
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
     });
+  }
+
+  resumenSesion(sesion: Sesion): string {
+    return sesion.descripcion?.trim() || 'Sin resumen capturado aun.';
+  }
+
+  duracionSesion(sesion: Sesion): string {
+    return sesion.duracionMin ? `${sesion.duracionMin} min` : 'Sin duracion';
   }
 }

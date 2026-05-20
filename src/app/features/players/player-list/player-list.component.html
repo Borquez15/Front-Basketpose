@@ -40,11 +40,18 @@
               <span [class]="scoreChip(j.puntuacionPromedio ?? 0)">
                 {{ j.puntuacionPromedio }}%
               </span>
+              <span class="chip chip-gray">{{ correoJugador(j) || 'Sin correo' }}</span>
             </div>
+            @if (reportError()) {
+              <div class="inline-alert error">{{ reportError() }}</div>
+            }
+            @if (reportStatus()) {
+              <div class="inline-alert ok">{{ reportStatus() }}</div>
+            }
           </div>
 
           <div class="player-actions">
-            <button class="btn-icon" [routerLink]="['/app/analisis', j.id]" (click)="$event.stopPropagation()">
+            <button class="btn-icon" [routerLink]="['/app/reporte', j.id]" (click)="$event.stopPropagation()">
               <i class="fas fa-chart-line"></i>
             </button>
             <span class="arrow">›</span>
@@ -68,6 +75,10 @@
                 <span>{{ selectedPlayer()?.curp || 'No disponible' }}</span>
               </div>
               <div class="detail-item">
+                <label>Correo</label>
+                <span>{{ correoJugador(selectedPlayer()) || 'No registrado' }}</span>
+              </div>
+              <div class="detail-item">
                 <label>Número de Camiseta</label>
                 <span>#{{ selectedPlayer()?.numeroCamiseta || 'S/N' }}</span>
               </div>
@@ -84,7 +95,10 @@
 
           <footer class="card-footer">
             <button class="btn btn-secondary w-100 mb-2" (click)="selectedPlayer.set(null)">Cerrar</button>
-            <button class="btn btn-primary w-100" [routerLink]="['/app/analisis', selectedPlayer()?.id]">
+            <button class="btn btn-outline w-100 mb-2" type="button" (click)="enviarReporte()">
+              Enviar reporte por correo
+            </button>
+            <button class="btn btn-primary w-100" [routerLink]="['/app/reporte', selectedPlayer()?.id]">
               Ver Análisis de Tiros
             </button>
           </footer>

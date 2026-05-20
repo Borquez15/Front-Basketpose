@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Clase, Jugador, Sesion, AnalisisTiro, ReporteProgreso } from '../models/index';
+import { Clase, Jugador, Sesion, AnalisisTiro, ReporteProgreso, InvitacionClase, MiembroClase } from '../models/index';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
@@ -29,7 +29,7 @@ export class DataService {
           // Backend devuelve totalJugadores (camelCase) directamente en el dict
           totalJugadores: c.totalJugadores ?? c.total_jugadores ?? c.total_miembros ?? 0,
           promedioTecnico: c.promedioTecnico ?? c.promedio_tecnico ?? 0,
-          rol: (c.rol ?? c.mi_rol ?? 'jugador') as Clase['rol'],
+          rol: this._rolClase(c.rol ?? c.mi_rol ?? 'jugador'),
           reconocimientoFacial: false,
           analisisRealTime: false,
           reportesAutomaticos: false,
@@ -50,7 +50,7 @@ export class DataService {
         activa: c.activo,
         totalJugadores: c.total_jugadores ?? c.total_miembros ?? 0,
         promedioTecnico: c.promedio_tecnico ?? 0,
-        rol: (c.mi_rol ?? 'jugador') as Clase['rol'],
+        rol: this._rolClase(c.rol ?? c.mi_rol ?? 'jugador'),
         reconocimientoFacial: false,
         analisisRealTime: false,
         reportesAutomaticos: false,
@@ -71,6 +71,10 @@ export class DataService {
 
   deleteClase(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/clases/${id}`);
+  }
+
+  getMiembrosClase(idClase: number): Observable<MiembroClase[]> {
+    return this.http.get<MiembroClase[]>(`${this.baseUrl}/clases/${idClase}/miembros`);
   }
 
   // ── JUGADORES ─────────────────────────────────────────────────────────────
@@ -154,16 +158,18 @@ export class DataService {
           idClase: s.id_clase || s.idClase,
           claseNombre: '',
           titulo: s.titulo || 'Sesión en Vivo',
+          descripcion: s.descripcion ?? '',
           fecha: s.fecha_sesion
             ? new Date(s.fecha_sesion)
             : s.creado_en
               ? new Date(s.creado_en)
               : new Date(),
+          duracionMin: s.duracion_min ?? s.duracionMin ?? undefined,
           horaInicio: '',
-          totalTiros: 0,
-          totalJugadores: 0,
-          puntuacionPromedio: 0,
-          errorMasFrecuente: '',
+          totalTiros: s.total_tiros ?? s.totalTiros ?? s.total_analisis ?? 0,
+          totalJugadores: s.total_jugadores ?? s.totalJugadores ?? 0,
+          puntuacionPromedio: s.puntuacion_promedio ?? s.puntuacionPromedio ?? 0,
+          errorMasFrecuente: s.error_mas_frecuente ?? s.errorMasFrecuente ?? '',
         } as Sesion));
       })
     );
@@ -174,8 +180,12 @@ export class DataService {
       map(s => ({
         id: s.id_sesion, idClase: s.id_clase, claseNombre: '',
         titulo: s.titulo || 'Sesión',
+        descripcion: s.descripcion ?? '',
         fecha: new Date(s.fecha_sesion || s.creado_en), horaInicio: '',
-        totalTiros: 0, totalJugadores: 0, puntuacionPromedio: 0,
+        duracionMin: s.duracion_min ?? s.duracionMin ?? undefined,
+        totalTiros: s.total_tiros ?? s.totalTiros ?? s.total_analisis ?? 0,
+        totalJugadores: s.total_jugadores ?? s.totalJugadores ?? 0,
+        puntuacionPromedio: s.puntuacion_promedio ?? s.puntuacionPromedio ?? 0,
       } as Sesion))
     );
   }
@@ -185,6 +195,7 @@ export class DataService {
       id_clase: sesion.idClase,
       titulo: sesion.titulo,
       descripcion: sesion.descripcion ?? '',
+      duracion_min: sesion.duracionMin ?? null,
     };
     console.log('CREAR SESIÓN payload:', payload);
 
@@ -193,11 +204,13 @@ export class DataService {
         id: s.id_sesion || s.id,
         idClase: s.id_clase || sesion.idClase!,
         titulo: sesion.titulo || 'Sesión',
+        descripcion: sesion.descripcion ?? '',
         fecha: s.fecha_sesion
           ? new Date(s.fecha_sesion)
           : s.creado_en
             ? new Date(s.creado_en)
-            : new Date()
+            : new Date(),
+        duracionMin: s.duracion_min ?? s.duracionMin ?? undefined
       } as Sesion))
     );
   }
@@ -216,6 +229,33 @@ export class DataService {
     return this.http.get<ReporteProgreso>(`${this.baseUrl}/jugadores/${jugadorId}/reporte`);
   }
 
+  enviarReporteJugador(jugadorId: number, email?: string): Observable<{ message: string; email?: string }> {
+    return this.http.post<{ message: string; email?: string }>(
+      `${this.baseUrl}/jugadores/${jugadorId}/enviar-reporte`,
+      email ? { email } : {}
+    );
+  }
+
+  crearInvitacionClase(idClase: number, email: string, rol: 'jugador' | 'entrenador' | 'administrador' = 'entrenador'): Observable<InvitacionClase> {
+    return this.http.post<InvitacionClase>(`${this.baseUrl}/invitaciones`, {
+      id_clase: idClase,
+      email_invitado: email,
+      rol_asignado: rol
+    });
+  }
+
+  getInvitacion(token: string): Observable<InvitacionClase> {
+    return this.http.get<InvitacionClase>(`${this.baseUrl}/invitaciones/ver/${token}`);
+  }
+
+  aceptarInvitacion(token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/invitaciones/aceptar`, { token });
+  }
+
+  rechazarInvitacion(token: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/invitaciones/rechazar`, { token });
+  }
+
   // ── HELPERS ───────────────────────────────────────────────────────────────
   private _initials(name: string): string {
     if (!name) return '??';
@@ -227,5 +267,9 @@ export class DataService {
   ];
   private _color(id: number): string {
     return this._colors[(id || 0) % this._colors.length];
+  }
+
+  private _rolClase(rol: string): Clase['rol'] {
+    return rol === 'entrenador' ? 'auxiliar' : (rol as Clase['rol']);
   }
 }

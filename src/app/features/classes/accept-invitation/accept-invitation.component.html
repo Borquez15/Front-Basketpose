@@ -1,0 +1,30 @@
+<div class="page fade-in">
+  <header class="topbar">
+    <button class="btn-icon" routerLink="/app/clases" type="button">&larr;</button>
+    <h2>Invitacion</h2>
+  </header>
+
+  <main class="content">
+    <section class="invite-card card">
+      @if (invitacion(); as inv) {
+        <span class="chip chip-orange">{{ inv.estado }}</span>
+        <h3>Unirte a la clase #{{ inv.id_clase }}</h3>
+        <p>Invitacion para {{ inv.email_invitado }} como {{ inv.rol_asignado === 'entrenador' ? 'auxiliar' : inv.rol_asignado }}.</p>
+
+        @if (error()) {
+          <div class="inline-alert error">{{ error() }}</div>
+        }
+        @if (status()) {
+          <div class="inline-alert ok">{{ status() }}</div>
+        }
+
+        <div class="actions">
+          <button class="btn btn-primary" type="button" [disabled]="loading()" (click)="aceptar()">Aceptar</button>
+          <button class="btn btn-ghost" type="button" [disabled]="loading()" (click)="rechazar()">Rechazar</button>
+        </div>
+      } @else {
+        <p>Cargando invitacion...</p>
+      }
+    </section>
+  </main>
+</div>

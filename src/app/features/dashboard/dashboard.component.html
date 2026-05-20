@@ -34,6 +34,7 @@
             <button class="btn btn-outline btn-sm"
                     (click)="$event.stopPropagation()"
                     routerLink="/app/sesion"
+                    [queryParams]="{ claseId: clase.id }"
                     style="margin-top: auto;">
               ▶ Iniciar sesión
             </button>
