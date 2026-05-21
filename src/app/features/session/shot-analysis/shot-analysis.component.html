@@ -76,10 +76,16 @@
       <button class="btn btn-outline" [routerLink]="['/app/reporte', a.id]">📋 Ver historial</button>
       <button class="btn btn-primary">↗ Compartir</button>
     </div>
+    } @else if (errorMessage()) {
+    <div class="empty-state">
+      <div class="icon">🏀</div>
+      <p>{{ errorMessage() }}</p>
+      <button class="btn btn-primary" routerLink="/app/sesion">Registrar tiro libre</button>
+    </div>
     } @else {
     <div class="empty-state">
       <div class="icon">🏀</div>
-      <p>Cargando análisis...</p>
+      <p>Cargando analisis...</p>
     </div>
     }
   </main>

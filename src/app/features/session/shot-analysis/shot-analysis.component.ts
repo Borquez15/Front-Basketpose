@@ -1,8 +1,8 @@
 // shot-analysis.component.ts
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
 import { DataService } from '../../../core/services/data.service';
 
 @Component({
@@ -15,9 +15,24 @@ import { DataService } from '../../../core/services/data.service';
 export class ShotAnalysisComponent {
   private route = inject(ActivatedRoute);
   data          = inject(DataService);
+  errorMessage  = signal('');
 
   analisis = toSignal(
-    this.route.paramMap.pipe(switchMap(p => this.data.getAnalisisTiro(+p.get('id')!)))
+    this.route.paramMap.pipe(
+      switchMap(p => {
+        this.errorMessage.set('');
+        return this.data.getAnalisisTiro(+p.get('id')!).pipe(
+          catchError(err => {
+            this.errorMessage.set(
+              err?.status === 404
+                ? 'Todavia no hay un tiro registrado para mostrar este analisis.'
+                : 'No se pudo cargar el analisis de tiro.'
+            );
+            return of(null);
+          })
+        );
+      })
+    )
   );
 
   get gaugeOffset(): number {
