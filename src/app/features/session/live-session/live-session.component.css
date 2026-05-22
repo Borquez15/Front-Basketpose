@@ -248,6 +248,48 @@
   margin-bottom: 8px;
 }
 
+.shot-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 10px;
+  margin-bottom: 8px;
+}
+
+.shot-result span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.shot-result strong {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.shot-result.result-made {
+  border-color: rgba(16,185,129,.45);
+  background: rgba(16,185,129,.12);
+}
+
+.shot-result.result-made strong {
+  color: var(--green);
+}
+
+.shot-result.result-miss {
+  border-color: rgba(239,68,68,.45);
+  background: rgba(239,68,68,.12);
+}
+
+.shot-result.result-miss strong {
+  color: var(--red);
+}
+
 .ut-angulos {
   display: flex;
   gap: 6px;
@@ -256,7 +298,7 @@
 
 .stats-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -289,4 +331,12 @@
 
 .stat-cell .val.orange {
   color: var(--orange);
+}
+
+.stat-cell .val.made {
+  color: var(--green);
+}
+
+.stat-cell .val.miss {
+  color: var(--red);
 }

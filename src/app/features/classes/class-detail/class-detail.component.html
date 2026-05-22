@@ -8,9 +8,6 @@
           <p>{{ c.totalJugadores }} jugadores activos</p>
         </div>
       </div>
-      <button class="btn btn-primary btn-sm" type="button" (click)="iniciarNuevaSesion(c.id)">
-        Iniciar sesion
-      </button>
     </header>
   } @else {
     <header class="topbar">
@@ -30,8 +27,19 @@
 
   <main class="content">
     @if (activeTab() === 0) {
+      <section class="section-actions">
+        <button class="btn btn-primary btn-sm" type="button" (click)="agregarJugador()">
+          Agregar jugador
+        </button>
+      </section>
+
       @if (jugadores().length === 0) {
-        <div class="empty-state-sm">No hay jugadores en esta clase.</div>
+        <div class="empty-state-sm session-empty">
+          <p>No hay jugadores en esta clase.</p>
+          <button class="btn btn-primary btn-sm" type="button" (click)="agregarJugador()">
+            Agregar primer jugador
+          </button>
+        </div>
       }
       @for (j of jugadores(); track j.id) {
         <div class="player-row" [routerLink]="['/app/reporte', j.id]">
@@ -157,6 +165,14 @@
         @if (inviteStatus()) {
           <div class="chip chip-green">{{ inviteStatus() }}</div>
         }
+        @if (inviteLink()) {
+          <div class="code-box">
+            <span class="invite-link">{{ inviteLink() }}</span>
+            <button class="btn btn-ghost btn-sm" type="button" (click)="copyInviteLink()">
+              {{ codeCopied() ? 'Copiado' : 'Copiar' }}
+            </button>
+          </div>
+        }
         <div class="field">
           <input type="email" placeholder="correo@ejemplo.com" [(ngModel)]="inviteEmail"/>
         </div>
@@ -173,7 +189,7 @@
       <div class="invite-option" style="margin-top:12px;">
         <h4>Compartir codigo</h4>
         <div class="code-box">
-          <span class="code-text">BK-7X3P</span>
+          <span class="code-text">{{ codeClase() }}</span>
           <button class="btn btn-ghost btn-sm" type="button" (click)="copyCode()">
             {{ codeCopied() ? 'Copiado' : 'Copiar' }}
           </button>

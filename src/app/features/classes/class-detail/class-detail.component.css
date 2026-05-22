@@ -138,6 +138,12 @@
   font-size: 1.2rem;
 }
 
+.section-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
 .session-summary {
   margin-bottom: 12px;
 }
@@ -284,6 +290,13 @@
   font-weight: 800;
   letter-spacing: 3px;
   color: var(--orange);
+}
+
+.invite-link {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
 }
 
 .code-exp {

@@ -96,10 +96,42 @@
       </div>
     }
     } @else {
+    @if (!jugadorId()) {
+      <div class="report-picker">
+        <div class="empty-state">
+          <div class="icon">📊</div>
+          <p>Selecciona un jugador para ver su reporte de progreso.</p>
+        </div>
+
+        @if (jugadores().length === 0) {
+          <div class="empty-state">
+            <p>No hay jugadores registrados todavia.</p>
+            <button class="btn btn-primary btn-sm" routerLink="/app/jugadores/nuevo">Agregar jugador</button>
+          </div>
+        }
+
+        <div class="report-player-list">
+          @for (j of jugadores(); track j.id) {
+            <a class="report-player-row" [routerLink]="['/app/reporte', j.id]">
+              <div class="avatar" [style.background]="j.avatarColor">{{ j.initials }}</div>
+              <div>
+                <div class="player-name">{{ j.nombre }} {{ j.apellidosJugador || '' }}</div>
+                <div class="player-sub">{{ j.clase?.nombre || 'Sin clase' }} · {{ j.puntuacionPromedio || 0 }} pts</div>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    }
+    @if (jugadorId()) {
     <div class="empty-state">
       <div class="icon">📊</div>
-      <p>Cargando reporte...</p>
+      <p>{{ errorMessage() || 'Cargando reporte...' }}</p>
+      @if (errorMessage()) {
+        <button class="btn btn-primary btn-sm" routerLink="/app/reportes">Elegir otro jugador</button>
+      }
     </div>
+    }
     }
   </main>
 

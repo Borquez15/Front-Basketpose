@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataService } from '../../../core/services/data.service';
 import { environment } from '../../../../environments/environment';
@@ -44,6 +44,7 @@ interface FaceValidationResponse {
 export class AddPlayerComponent implements OnDestroy {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private data = inject(DataService);
 
   @ViewChild('videoFace') videoFace!: ElementRef<HTMLVideoElement>;
@@ -71,12 +72,20 @@ export class AddPlayerComponent implements OnDestroy {
   faceLoading = signal(false);
   faceChecking = signal(false);
   faceValidated = signal(false);
-  faceStatus = signal('Inicia la camara y captura el rostro del jugador.');
+  faceStatus = signal('El rostro es opcional. Si lo capturas, se usara para reconocimiento facial.');
   cameras = signal<CameraOption[]>([]);
   selectedCameraId = '';
 
   private faceStream: MediaStream | null = null;
   rostroBase64: string | null = null;
+
+  constructor() {
+    const params = this.route.snapshot.queryParamMap;
+    const claseId = Number(params.get('claseId'));
+    if (!Number.isNaN(claseId) && claseId > 0) {
+      this.claseId = claseId;
+    }
+  }
 
   async cargarCamaras() {
     if (!navigator.mediaDevices?.enumerateDevices) {
@@ -279,8 +288,7 @@ export class AddPlayerComponent implements OnDestroy {
     }
 
     if (!this.rostroBase64 || !this.faceValidated()) {
-      this.error.set('Captura y valida el rostro del jugador antes de guardar.');
-      return;
+      this.rostroBase64 = null;
     }
 
     const partes = nombreCompleto.split(/\s+/);
@@ -297,7 +305,7 @@ export class AddPlayerComponent implements OnDestroy {
       peso_kg: this.peso ?? null,
       curp: this.curp.trim().toUpperCase() || null,
       notas: this.correo.trim() ? `correo: ${this.correo.trim()}` : null,
-      rostro_base64: this.rostroBase64
+      rostro_base64: this.faceValidated() ? this.rostroBase64 : null
     };
 
     this.faceLoading.set(true);
@@ -306,7 +314,8 @@ export class AddPlayerComponent implements OnDestroy {
       next: () => {
         this.faceLoading.set(false);
         this.detenerCamaraRostro();
-        this.router.navigate(['/app/jugadores']);
+        const returnTo = this.route.snapshot.queryParamMap.get('returnTo');
+        this.router.navigateByUrl(returnTo || '/app/jugadores');
       },
       error: (err) => {
         console.error(err);

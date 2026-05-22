@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 18px 24px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -163,3 +163,102 @@
   font-size: 1.5rem;
 }
 .quick-card span { font-size: 0.9rem; font-weight: 600; }
+
+@media (min-width: 900px) {
+  .dashboard {
+    margin-left: 0;
+    padding-top: 72px;
+    min-height: 100vh;
+  }
+
+  .dash-header {
+    position: static;
+    padding: 28px 40px;
+    background:
+      linear-gradient(135deg, rgba(255,107,53,.12), transparent 36%),
+      var(--bg2);
+  }
+
+  .header-titles h2 {
+    font-size: 1.45rem;
+  }
+
+  .header-titles p {
+    font-size: 0.88rem;
+  }
+
+  .content {
+    max-width: 1440px;
+    padding: 32px 48px 56px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+    column-gap: 28px;
+    row-gap: 36px;
+    align-items: start;
+  }
+
+  .content section:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .content section:nth-child(2) {
+    grid-column: 1;
+  }
+
+  .content section:nth-child(3) {
+    grid-column: 2;
+  }
+
+  .section-header {
+    margin-bottom: 14px;
+  }
+
+  .section-header h3 {
+    font-size: 1rem;
+  }
+
+  .clases-scroll {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .class-card {
+    min-width: 0;
+    min-height: 132px;
+  }
+
+  .analysis-card {
+    min-height: 338px;
+    justify-content: center;
+    padding: 30px;
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .quick-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 74px;
+    padding: 16px 18px;
+  }
+
+  .quick-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 1500px) {
+  .content {
+    max-width: 1520px;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 420px);
+  }
+}

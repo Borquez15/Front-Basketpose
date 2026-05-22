@@ -1,7 +1,7 @@
 <div class="page fade-in">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="btn-icon" routerLink="/app/jugadores">&larr;</button>
+      <button class="btn-icon" [routerLink]="claseId ? ['/app/clases', claseId] : ['/app/jugadores']">&larr;</button>
       <div>
         <h2>Agregar Jugador</h2>
         <p>Registro de nuevo jugador</p>
@@ -26,7 +26,7 @@
           <div class="camera-placeholder">
             <div class="face-avatar">Persona</div>
             @if (!faceCapture()) {
-              <p>Inicia la camara para registrar el rostro del jugador</p>
+              <p>Rostro opcional para reconocimiento facial</p>
             }
           </div>
         }
@@ -161,12 +161,12 @@
         type="button"
         style="padding:14px;"
         (click)="guardar()"
-        [disabled]="faceLoading() || !faceValidated()"
+        [disabled]="faceLoading()"
       >
         {{ faceLoading() ? 'Guardando...' : 'Guardar jugador' }}
       </button>
 
-      <button class="btn btn-ghost btn-full" type="button" routerLink="/app/jugadores">
+      <button class="btn btn-ghost btn-full" type="button" [routerLink]="claseId ? ['/app/clases', claseId] : ['/app/jugadores']">
         Cancelar
       </button>
     </div>

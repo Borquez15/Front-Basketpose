@@ -5,6 +5,25 @@
   </header>
 
   <main class="content">
+    <section class="join-class card">
+      <div>
+        <h3>Unirse a una clase</h3>
+        <p>Usa el codigo que te compartio tu entrenador.</p>
+      </div>
+      <div class="join-row">
+        <input type="text" placeholder="Codigo de clase" [(ngModel)]="joinCode"/>
+        <button class="btn btn-primary btn-sm" type="button" [disabled]="joinLoading()" (click)="unirsePorCodigo()">
+          {{ joinLoading() ? 'Uniendo...' : 'Unirse' }}
+        </button>
+      </div>
+      @if (joinStatus()) {
+        <div class="inline-alert ok">{{ joinStatus() }}</div>
+      }
+      @if (joinError()) {
+        <div class="inline-alert error">{{ joinError() }}</div>
+      }
+    </section>
+
     <div class="field" style="margin-bottom:14px;">
       <input type="text" placeholder="🔍  Buscar clase..."
              [value]="search()" (input)="search.set($any($event.target).value)"/>

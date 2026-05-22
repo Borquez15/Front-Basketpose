@@ -2,8 +2,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { switchMap } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { DataService } from '../../../core/services/data.service';
+import { Jugador } from '../../../core/models';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
 
 @Component({
@@ -17,9 +18,40 @@ export class ProgressReportComponent {
   private route = inject(ActivatedRoute);
   data          = inject(DataService);
   periodo       = signal<'7d' | '30d' | '3m'>('7d');
+  errorMessage  = signal('');
+
+  jugadorId = toSignal(
+    this.route.paramMap.pipe(
+      map(p => {
+        const id = Number(p.get('id'));
+        return Number.isFinite(id) && id > 0 ? id : null;
+      })
+    ),
+    { initialValue: null as number | null }
+  );
+
+  jugadores = toSignal(this.data.getJugadores(), { initialValue: [] as Jugador[] });
 
   reporte = toSignal(
-    this.route.paramMap.pipe(switchMap(p => this.data.getReporteProgreso(+p.get('id')!)))
+    this.route.paramMap.pipe(
+      switchMap(p => {
+        const id = Number(p.get('id'));
+        this.errorMessage.set('');
+        if (!Number.isFinite(id) || id <= 0) return of(null);
+
+        return this.data.getReporteProgreso(id).pipe(
+          catchError(err => {
+            this.errorMessage.set(
+              err?.status === 404
+                ? 'No se encontro reporte para este jugador. Selecciona otro jugador.'
+                : 'No se pudo cargar el reporte de progreso.'
+            );
+            return of(null);
+          })
+        );
+      })
+    ),
+    { initialValue: null }
   );
 
   get maxCount(): number {

@@ -24,6 +24,7 @@ export class ClassDetailComponent {
   inviteRole: 'jugador' | 'entrenador' = 'entrenador';
   inviteStatus = signal('');
   inviteError = signal('');
+  inviteLink = signal('');
 
   constructor() {
     if (this.route.snapshot.queryParamMap.get('tab') === 'sesiones') {
@@ -83,10 +84,20 @@ export class ClassDetailComponent {
 
   setTab(i: number) { this.activeTab.set(i); }
 
+  codeClase(): string {
+    return this.clase()?.codigoInvitacion || (this.clase()?.id ? `BK-${this.clase()!.id}` : 'BK-XXXX');
+  }
+
   copyCode() {
-    const clase = this.clase();
-    const code = clase?.id ? `BK-${clase.id}` : 'BK-XXXX';
-    navigator.clipboard?.writeText(code);
+    navigator.clipboard?.writeText(this.codeClase());
+    this.codeCopied.set(true);
+    setTimeout(() => this.codeCopied.set(false), 2000);
+  }
+
+  copyInviteLink() {
+    const link = this.inviteLink();
+    if (!link) return;
+    navigator.clipboard?.writeText(link);
     this.codeCopied.set(true);
     setTimeout(() => this.codeCopied.set(false), 2000);
   }
@@ -94,6 +105,7 @@ export class ClassDetailComponent {
   enviarInvitacion() {
     this.inviteStatus.set('');
     this.inviteError.set('');
+    this.inviteLink.set('');
     const clase = this.clase();
     const email = this.inviteEmail.trim();
     if (!clase?.id) return;
@@ -103,9 +115,14 @@ export class ClassDetailComponent {
     }
 
     this.data.crearInvitacionClase(clase.id, email, this.inviteRole).subscribe({
-      next: () => {
+      next: (inv) => {
         const rol = this.inviteRole === 'entrenador' ? 'auxiliar' : 'jugador';
         this.inviteStatus.set(`Invitacion enviada para unirse como ${rol}.`);
+        if (inv.token) {
+          const url = `${window.location.origin}/app/invitacion/${inv.token}`;
+          this.inviteLink.set(url);
+          navigator.clipboard?.writeText(url);
+        }
         this.inviteEmail = '';
       },
       error: err => {
@@ -120,12 +137,36 @@ export class ClassDetailComponent {
     return 'chip chip-red';
   }
 
+  private claseIdActual(): number | null {
+    const claseId = this.clase()?.id;
+    if (claseId) return claseId;
+
+    const routeId = Number(this.route.snapshot.paramMap.get('id'));
+    return routeId > 0 ? routeId : null;
+  }
+
   iniciarNuevaSesion(claseId?: number) {
-    const id = claseId ?? this.clase()?.id;
+    const id = claseId ?? this.claseIdActual();
     if (!id) return;
 
     this.router.navigate(['/app/sesion'], {
-      queryParams: { claseId: id }
+      queryParams: {
+        claseId: id,
+        titulo: `Tiros libres ${new Date().toLocaleDateString('es-MX')}`,
+        returnTo: `/app/clases/${id}`
+      }
+    });
+  }
+
+  agregarJugador(claseId?: number) {
+    const id = claseId ?? this.clase()?.id;
+    if (!id) return;
+
+    this.router.navigate(['/app/jugadores/nuevo'], {
+      queryParams: {
+        claseId: id,
+        returnTo: `/app/clases/${id}`
+      }
     });
   }
 

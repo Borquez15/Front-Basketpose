@@ -51,3 +51,32 @@
 .rec-icon  { font-size: 1.5rem; flex-shrink: 0; }
 .rec-name  { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
 .rec-desc  { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+.report-picker {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.report-player-list {
+  display: grid;
+  gap: 10px;
+}
+
+.report-player-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.report-player-row:hover {
+  border-color: var(--orange);
+  background: var(--bg3);
+  transform: translateY(-2px);
+}

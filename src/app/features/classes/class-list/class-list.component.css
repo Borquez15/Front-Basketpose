@@ -11,6 +11,30 @@
 .clase-card { cursor: pointer; transition: all 0.2s; }
 .clase-card:hover { border-color: var(--orange); transform: translateX(3px); }
 
+.join-class {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.join-class h3 {
+  color: var(--text);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.join-class p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin: 3px 0 0;
+}
+
+.join-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
 .clase-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
 .clase-nombre { font-weight: 700; font-size: 0.95rem; color: var(--text); }
 .clase-lugar  { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }

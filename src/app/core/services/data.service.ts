@@ -25,6 +25,7 @@ export class DataService {
           nivel: 'Avanzado' as Clase['nivel'],
           categoria: 'Adulto' as Clase['categoria'],
           lugar: c.lugar ?? '',
+          codigoInvitacion: c.codigo_invitacion ?? c.codigoInvitacion ?? '',
           activa: c.activa ?? c.activo ?? true,
           // Backend devuelve totalJugadores (camelCase) directamente en el dict
           totalJugadores: c.totalJugadores ?? c.total_jugadores ?? c.total_miembros ?? 0,
@@ -41,12 +42,13 @@ export class DataService {
   getClase(id: number): Observable<Clase> {
     return this.http.get<any>(`${this.baseUrl}/clases/${id}`).pipe(
       map(c => ({
-        id: c.id_clase,
+        id: c.id_clase ?? c.id,
         nombre: c.nombre,
         descripcion: c.descripcion ?? '',
         nivel: 'Avanzado' as Clase['nivel'],
         categoria: 'Adulto' as Clase['categoria'],
         lugar: c.lugar ?? '',
+        codigoInvitacion: c.codigo_invitacion ?? c.codigoInvitacion ?? '',
         activa: c.activo,
         totalJugadores: c.total_jugadores ?? c.total_miembros ?? 0,
         promedioTecnico: c.promedio_tecnico ?? 0,
@@ -244,6 +246,10 @@ export class DataService {
     });
   }
 
+  unirseAClasePorCodigo(codigo: string): Observable<MiembroClase> {
+    return this.http.post<MiembroClase>(`${this.baseUrl}/invitaciones/unirse-codigo`, { codigo });
+  }
+
   getInvitacion(token: string): Observable<InvitacionClase> {
     return this.http.get<InvitacionClase>(`${this.baseUrl}/invitaciones/ver/${token}`);
   }
@@ -254,6 +260,10 @@ export class DataService {
 
   rechazarInvitacion(token: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/invitaciones/rechazar`, { token });
+  }
+
+  finalizarSesion(idSesion: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/sesiones/${idSesion}/finalizar`, {});
   }
 
   // ── HELPERS ───────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@
   @if (!sessionStarted()) {
     <div class="setup-screen">
       <header class="setup-header">
-        <button class="btn-icon" routerLink="/app/dashboard">&larr;</button>
+        <button class="btn-icon" [routerLink]="claseId ? ['/app/clases', claseId] : ['/app/dashboard']">&larr;</button>
         <div>
           <h2>Nueva Sesion</h2>
           <p>Entrenamiento de tiros libres</p>
@@ -59,19 +59,21 @@
                 (click)="iniciarSesion()">
           {{ saving() ? 'Iniciando...' : 'Iniciar tiros libres en vivo' }}
         </button>
-        <button class="btn btn-ghost btn-full" routerLink="/app/dashboard">Cancelar</button>
+        <button class="btn btn-ghost btn-full" [routerLink]="claseId ? ['/app/clases', claseId] : ['/app/dashboard']">Cancelar</button>
       </div>
     </div>
   }
 
   @if (sessionStarted()) {
     <header class="live-header">
-      <button class="btn-icon" (click)="finalizarSesion()">&larr;</button>
+      <button class="btn-icon" [disabled]="finishing()" (click)="finalizarSesion()">&larr;</button>
       <div class="live-center">
         <span class="live-badge"><span class="live-dot"></span>EN VIVO</span>
         <span class="timer">{{ timerDisplay }}</span>
       </div>
-      <button class="btn btn-danger btn-sm" (click)="finalizarSesion()">Finalizar</button>
+      <button class="btn btn-danger btn-sm" [disabled]="finishing()" (click)="finalizarSesion()">
+        {{ finishing() ? 'Enviando...' : 'Finalizar' }}
+      </button>
     </header>
 
     <div class="camera-toolbar">
@@ -102,6 +104,7 @@
       <div class="pose-hud">
         <span [class.ok]="poseDetected()">{{ poseDetected() ? 'Cuerpo detectado' : 'Buscando cuerpo' }}</span>
         <span [class.ok]="ballDetected()">{{ ballDetected() ? 'Balon detectado' : 'Buscando balon' }}</span>
+        <span [class.ok]="hoopDetected()">{{ hoopDetected() ? 'Aro detectado' : 'Buscando aro' }}</span>
         <span>{{ bodyStatus() }}</span>
       </div>
     </div>
@@ -120,10 +123,20 @@
 
       <div class="ultimo-tiro">
         <div class="ut-title">Tiros libres validos</div>
+        <div class="shot-result"
+             [class.result-made]="lastShotResult() === 'encestado'"
+             [class.result-miss]="lastShotResult() === 'fallado'"
+             [class.result-unknown]="lastShotResult() !== 'encestado' && lastShotResult() !== 'fallado'">
+          <span>Ultimo resultado</span>
+          <strong>{{ resultadoLabel() }}</strong>
+        </div>
         <div class="empty-live">
-          Solo se registra cuando el balon sale hacia la canasta en fase de lanzamiento.
+          Se registra cuando el balon sale hacia la canasta y cruza la zona del aro.
           @if (lastShotScore() !== null) {
             Ultimo promedio tecnico: {{ lastShotScore() }} pts.
+          }
+          @if (lastReleaseAngle() !== null) {
+            Angulo de salida: {{ lastReleaseAngle() }}°.
           }
         </div>
         <div class="ut-angulos">
@@ -138,7 +151,8 @@
     </div>
 
     <div class="stats-row">
-      <div class="stat-cell"><div class="lbl">Pose</div><div class="val">{{ poseDetected() ? 'OK' : '--' }}</div></div>
+      <div class="stat-cell"><div class="lbl">Encestados</div><div class="val made">{{ stats.encestados }}</div></div>
+      <div class="stat-cell"><div class="lbl">Fallados</div><div class="val miss">{{ stats.fallados }}</div></div>
       <div class="stat-cell"><div class="lbl">Tiros</div><div class="val">{{ stats.tiros }}</div></div>
       <div class="stat-cell"><div class="lbl">Promedio</div><div class="val orange">{{ stats.promedio || '--' }}</div></div>
     </div>

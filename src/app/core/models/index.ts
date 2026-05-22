@@ -18,6 +18,7 @@ export interface Clase {
   nivel: 'Principiante' | 'Intermedio' | 'Avanzado' | 'Élite';
   categoria: 'Infantil' | 'Juvenil' | 'Adulto' | 'Mixto';
   lugar?: string;
+  codigoInvitacion?: string;
   activa: boolean;
   totalJugadores: number;
   promedioTecnico: number;

@@ -38,6 +38,7 @@ export const routes: Routes = [
       { path: 'analisis/:id',     loadComponent: () => import('./features/session/shot-analysis/shot-analysis.component').then(m => m.ShotAnalysisComponent) },
 
       // Reporte
+      { path: 'reportes',         loadComponent: () => import('./features/reports/progress-report/progress-report.component').then(m => m.ProgressReportComponent) },
       { path: 'reporte/:id',      loadComponent: () => import('./features/reports/progress-report/progress-report.component').then(m => m.ProgressReportComponent) },
 
       // Perfil

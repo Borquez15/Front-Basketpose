@@ -33,9 +33,12 @@ interface LiveFrameResponse {
   landmarks: PoseLandmark[];
   angles: Record<string, number>;
   ball?: { x: number; y: number; radius: number } | null;
+  hoop?: { x: number; y: number; width: number; height: number } | null;
   shot_attempt?: boolean;
   shot_registered?: boolean;
+  shot_result?: 'encestado' | 'fallado' | 'indeterminado';
   shot_score?: number;
+  release_angle?: number | null;
   analisis_id?: number;
   jugador?: {
     id_jugador: number;
@@ -69,6 +72,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   setupError     = signal('');
   setupStatus    = signal('');
   saving         = signal(false);
+  finishing      = signal(false);
 
   titulo       = '';
   descripcion  = '';
@@ -76,12 +80,17 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   jugadorManualId: number | null = null;
   duracionMin: number | null = 90;
   sessionId: number | null = null;
+  returnTo = '/app/dashboard';
 
   seconds = signal(0);
   private interval: ReturnType<typeof setInterval> | null = null;
   private frameInterval: ReturnType<typeof setInterval> | null = null;
   private analysisBusy = false;
   private cameraStream: MediaStream | null = null;
+  private smoothedLandmarks: PoseLandmark[] = [];
+  private readonly analysisIntervalMs = 300;
+  private readonly captureMaxWidth = 640;
+  private readonly captureQuality = 0.62;
 
   cameras = signal<CameraOption[]>([]);
   selectedCameraId = '';
@@ -91,10 +100,13 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   playerDetected = signal<{ id_jugador: number; nombre: string; confianza: number } | null>(null);
   angles = signal<Record<string, number>>({});
   ballDetected = signal(false);
+  hoopDetected = signal(false);
   lastShotScore = signal<number | null>(null);
+  lastShotResult = signal<'encestado' | 'fallado' | 'indeterminado' | null>(null);
+  lastReleaseAngle = signal<number | null>(null);
   manualShotSaving = signal(false);
 
-  stats = { tiros: 0, jugadores: 0, promedio: 0 };
+  stats = { tiros: 0, encestados: 0, fallados: 0, indeterminados: 0, jugadores: 0, promedio: 0 };
   private playerIds = new Set<number>();
 
   private readonly poseConnections = [
@@ -113,8 +125,10 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     const params = this.route.snapshot.queryParamMap;
     const claseIdParam = params.get('claseId');
     const tituloParam  = params.get('titulo');
+    const returnToParam = params.get('returnTo');
     if (claseIdParam) this.claseId = Number(claseIdParam);
     if (tituloParam)  this.titulo  = tituloParam;
+    if (returnToParam?.startsWith('/app/')) this.returnTo = returnToParam;
   }
 
   ngOnDestroy() {
@@ -212,8 +226,9 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
       this.cameraStream = await navigator.mediaDevices.getUserMedia({
         video: {
           ...video,
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 960 },
+          height: { ideal: 540 },
+          frameRate: { ideal: 30, max: 30 }
         },
         audio: false
       });
@@ -237,6 +252,8 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
       clearInterval(this.frameInterval);
       this.frameInterval = null;
     }
+    this.analysisBusy = false;
+    this.smoothedLandmarks = [];
 
     if (this.cameraStream) {
       this.cameraStream.getTracks().forEach(track => track.stop());
@@ -256,7 +273,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
 
   private iniciarAnalisisFrames() {
     if (this.frameInterval) clearInterval(this.frameInterval);
-    this.frameInterval = setInterval(() => this.enviarFrameAnalisis(), 900);
+    this.frameInterval = setInterval(() => this.enviarFrameAnalisis(), this.analysisIntervalMs);
   }
 
   private enviarFrameAnalisis() {
@@ -266,14 +283,20 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     const canvas = this.captureCanvas?.nativeElement;
     if (!video || !canvas || !video.videoWidth || !video.videoHeight) return;
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const scale = Math.min(1, this.captureMaxWidth / video.videoWidth);
+    const targetWidth = Math.max(1, Math.round(video.videoWidth * scale));
+    const targetHeight = Math.max(1, Math.round(video.videoHeight * scale));
+
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+    }
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const image_base64 = canvas.toDataURL('image/jpeg', 0.72);
+    const image_base64 = canvas.toDataURL('image/jpeg', this.captureQuality);
 
     this.analysisBusy = true;
     this.http.post<LiveFrameResponse>(`${environment.apiUrl}/analisis/frame`, {
@@ -287,20 +310,26 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
         this.angles.set(res.angles || {});
         this.playerDetected.set(res.jugador ?? null);
         this.ballDetected.set(!!res.ball);
+        this.hoopDetected.set(!!res.hoop);
         this.bodyStatus.set(res.mensaje);
+        this.lastReleaseAngle.set(res.release_angle ?? this.lastReleaseAngle());
         if (res.jugador?.id_jugador) {
           this.playerIds.add(res.jugador.id_jugador);
           this.stats.jugadores = this.playerIds.size;
         }
         if (res.shot_registered) {
           this.stats.tiros += 1;
+          this.lastShotResult.set(res.shot_result ?? 'indeterminado');
+          if (res.shot_result === 'encestado') this.stats.encestados += 1;
+          else if (res.shot_result === 'fallado') this.stats.fallados += 1;
+          else this.stats.indeterminados += 1;
           if (typeof res.shot_score === 'number') {
             const prevTotal = this.stats.promedio * (this.stats.tiros - 1);
             this.stats.promedio = Math.round((prevTotal + res.shot_score) / this.stats.tiros);
             this.lastShotScore.set(res.shot_score);
           }
         }
-        this.dibujarPuntos(res.landmarks || []);
+        this.dibujarOverlay(res.landmarks || [], res.ball ?? null, res.hoop ?? null);
       },
       error: (err) => {
         this.analysisBusy = false;
@@ -332,9 +361,11 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
       next: () => {
         this.manualShotSaving.set(false);
         this.stats.tiros += 1;
+        this.stats.indeterminados += 1;
         const prevTotal = this.stats.promedio * (this.stats.tiros - 1);
         this.stats.promedio = Math.round((prevTotal + score) / this.stats.tiros);
         this.lastShotScore.set(score);
+        this.lastShotResult.set('indeterminado');
         this.bodyStatus.set(`Tiro libre guardado con promedio tecnico ${score} pts.`);
       },
       error: err => {
@@ -363,19 +394,80 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     return scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 70;
   }
 
-  private dibujarPuntos(landmarks: PoseLandmark[]) {
+  private suavizarLandmarks(landmarks: PoseLandmark[]): PoseLandmark[] {
+    if (!landmarks.length) {
+      this.smoothedLandmarks = [];
+      return [];
+    }
+
+    if (this.smoothedLandmarks.length !== landmarks.length) {
+      this.smoothedLandmarks = landmarks.map(point => ({ ...point }));
+      return this.smoothedLandmarks;
+    }
+
+    const alpha = 0.48;
+    this.smoothedLandmarks = landmarks.map((point, index) => {
+      const prev = this.smoothedLandmarks[index];
+      return {
+        ...point,
+        x: prev.x + (point.x - prev.x) * alpha,
+        y: prev.y + (point.y - prev.y) * alpha,
+        visibility: point.visibility
+      };
+    });
+    return this.smoothedLandmarks;
+  }
+
+  private dibujarOverlay(
+    landmarks: PoseLandmark[],
+    ball: { x: number; y: number; radius: number } | null,
+    hoop: { x: number; y: number; width: number; height: number } | null
+  ) {
     const canvas = this.overlayCanvas?.nativeElement;
     const video = this.analysisVideo?.nativeElement;
     if (!canvas || !video) return;
 
     const rect = video.getBoundingClientRect();
-    canvas.width = Math.max(1, Math.round(rect.width));
-    canvas.height = Math.max(1, Math.round(rect.height));
+    const targetWidth = Math.max(1, Math.round(rect.width));
+    const targetHeight = Math.max(1, Math.round(rect.height));
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+    }
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (hoop) {
+      const width = hoop.width * canvas.width;
+      const height = hoop.height * canvas.height;
+      const x = hoop.x * canvas.width - width / 2;
+      const y = hoop.y * canvas.height - height / 2;
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x, y, width, height);
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.18)';
+      ctx.fillRect(x, y, width, height);
+    }
+
+    if (ball) {
+      ctx.beginPath();
+      ctx.fillStyle = '#ff6b35';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.arc(
+        ball.x * canvas.width,
+        ball.y * canvas.height,
+        Math.max(7, ball.radius * Math.max(canvas.width, canvas.height)),
+        0,
+        Math.PI * 2
+      );
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    landmarks = this.suavizarLandmarks(landmarks);
     if (!landmarks.length) return;
 
     const visible = (idx: number) => landmarks[idx] && landmarks[idx].visibility > 0.45;
@@ -403,14 +495,46 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     }
   }
 
+  resultadoLabel(): string {
+    const result = this.lastShotResult();
+    if (result === 'encestado') return 'Encestado';
+    if (result === 'fallado') return 'Fallado';
+    if (result === 'indeterminado') return 'Sin aro visible';
+    return 'Sin tiro';
+  }
+
   finalizarSesion() {
+    if (this.finishing()) return;
     this._stopTimer();
     this.detenerCamaraAnalisis();
+    if (this.sessionId) {
+      this.finishing.set(true);
+      this.bodyStatus.set('Finalizando sesion y enviando reportes por correo...');
+      this.data.finalizarSesion(this.sessionId).subscribe({
+        next: res => {
+          const enviados = res?.reportes_enviados?.length ?? 0;
+          this.bodyStatus.set(`Sesion finalizada. Reportes enviados: ${enviados}.`);
+          this.finishing.set(false);
+          this.navegarAlSalir();
+        },
+        error: err => {
+          this.finishing.set(false);
+          this.bodyStatus.set(err?.error?.detail || 'Sesion finalizada, pero no se pudieron enviar los reportes.');
+          this.navegarAlSalir();
+        }
+      });
+      return;
+    }
+
+    this.navegarAlSalir();
+  }
+
+  private navegarAlSalir() {
     if (this.claseId) {
       this.router.navigate(['/app/clases', this.claseId], { queryParams: { tab: 'sesiones' } });
       return;
     }
-    this.router.navigate(['/app/dashboard']);
+    this.router.navigateByUrl(this.returnTo);
   }
 
   get timerDisplay(): string {
