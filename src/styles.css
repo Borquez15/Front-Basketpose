@@ -3,6 +3,9 @@
    Fuente: Poppins | Paleta: #1A1A2E / #252541 / #FF6B35
    ============================================================ */
 
+/* Tailwind CSS utilities (preflight disabled – custom reset is used instead) */
+@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
 
 /* ── CSS Variables ── */
