@@ -40,6 +40,8 @@ interface LiveFrameResponse {
   shot_score?: number;
   release_angle?: number | null;
   analisis_id?: number;
+  fase_tiro?: 'espera' | 'preparacion' | 'vuelo';
+  errores?: { codigo: string; nombre: string; valor: number; recomendacion: string }[];
   jugador?: {
     id_jugador: number;
     nombre: string;
@@ -105,6 +107,11 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   lastShotResult = signal<'encestado' | 'fallado' | 'indeterminado' | null>(null);
   lastReleaseAngle = signal<number | null>(null);
   manualShotSaving = signal(false);
+  markingHoop = signal(false);
+  hoopManual = signal(false);
+  private hoopClicks: { x: number; y: number }[] = [];
+  private lastHoop: { x: number; y: number; width: number; height: number } | null = null;
+  lastErrors = signal<string[]>([]);
 
   stats = { tiros: 0, encestados: 0, fallados: 0, indeterminados: 0, jugadores: 0, promedio: 0 };
   private playerIds = new Set<number>();
@@ -317,6 +324,9 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
           this.playerIds.add(res.jugador.id_jugador);
           this.stats.jugadores = this.playerIds.size;
         }
+        if (res.shot_registered && res.errores) {
+          this.lastErrors.set(res.errores.map(e => `${e.nombre} (${e.valor}°)`));
+        }
         if (res.shot_registered) {
           this.stats.tiros += 1;
           this.lastShotResult.set(res.shot_result ?? 'indeterminado');
@@ -329,6 +339,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
             this.lastShotScore.set(res.shot_score);
           }
         }
+        this.lastHoop = res.hoop ?? this.lastHoop;
         this.dibujarOverlay(res.landmarks || [], res.ball ?? null, res.hoop ?? null);
       },
       error: (err) => {
@@ -418,6 +429,69 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     return this.smoothedLandmarks;
   }
 
+  /** Área real donde se ve el video dentro del elemento (object-fit: contain deja franjas). */
+  private videoContentRect(canvasW: number, canvasH: number) {
+    const video = this.analysisVideo?.nativeElement;
+    if (!video || !video.videoWidth || !video.videoHeight) return { x: 0, y: 0, w: canvasW, h: canvasH };
+    const vr = video.videoWidth / video.videoHeight;
+    const cr = canvasW / canvasH;
+    const w = vr > cr ? canvasW : canvasH * vr;
+    const h = vr > cr ? canvasW / vr : canvasH;
+    return { x: (canvasW - w) / 2, y: (canvasH - h) / 2, w, h };
+  }
+
+  iniciarMarcadoAro() {
+    this.hoopClicks = [];
+    this.markingHoop.set(true);
+    this.bodyStatus.set('Marca el aro: haz clic en la esquina superior izquierda del aro y luego en la inferior derecha.');
+  }
+
+  marcarAro(event: MouseEvent) {
+    if (!this.markingHoop() || !this.sessionId) return;
+    const canvas = this.overlayCanvas?.nativeElement;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const area = this.videoContentRect(rect.width, rect.height);
+    const x = (event.clientX - rect.left - area.x) / area.w;
+    const y = (event.clientY - rect.top - area.y) / area.h;
+    if (x < 0 || x > 1 || y < 0 || y > 1) return;
+    this.hoopClicks.push({ x, y });
+    if (this.hoopClicks.length === 1) {
+      this.bodyStatus.set('Ahora haz clic en la esquina inferior derecha del aro.');
+      return;
+    }
+    const [a, b] = this.hoopClicks;
+    const hoop = {
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+      width: Math.max(0.01, Math.abs(b.x - a.x)),
+      height: Math.max(0.005, Math.abs(b.y - a.y))
+    };
+    this.markingHoop.set(false);
+    this.hoopClicks = [];
+    this.http.post(`${environment.apiUrl}/analisis/sesion/${this.sessionId}/aro`, hoop).subscribe({
+      next: () => {
+        this.hoopManual.set(true);
+        this.hoopDetected.set(true);
+        this.lastHoop = hoop;
+        this.bodyStatus.set('Aro calibrado. Ya se puede decidir enceste o fallo.');
+      },
+      error: err => this.bodyStatus.set(err?.error?.detail || 'No se pudo guardar el aro.')
+    });
+  }
+
+  reiniciarAro() {
+    if (!this.sessionId) return;
+    this.http.delete(`${environment.apiUrl}/analisis/sesion/${this.sessionId}/aro`).subscribe({
+      next: () => {
+        this.hoopManual.set(false);
+        this.hoopDetected.set(false);
+        this.lastHoop = null;
+        this.bodyStatus.set('Aro reiniciado: se buscara automaticamente.');
+      }
+    });
+  }
+
   private dibujarOverlay(
     landmarks: PoseLandmark[],
     ball: { x: number; y: number; radius: number } | null,
@@ -438,12 +512,15 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const area = this.videoContentRect(canvas.width, canvas.height);
+    const px = (x: number) => area.x + x * area.w;
+    const py = (y: number) => area.y + y * area.h;
 
     if (hoop) {
-      const width = hoop.width * canvas.width;
-      const height = hoop.height * canvas.height;
-      const x = hoop.x * canvas.width - width / 2;
-      const y = hoop.y * canvas.height - height / 2;
+      const width = hoop.width * area.w;
+      const height = hoop.height * area.h;
+      const x = px(hoop.x) - width / 2;
+      const y = py(hoop.y) - height / 2;
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 4;
       ctx.strokeRect(x, y, width, height);
@@ -457,9 +534,9 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2;
       ctx.arc(
-        ball.x * canvas.width,
-        ball.y * canvas.height,
-        Math.max(7, ball.radius * Math.max(canvas.width, canvas.height)),
+        px(ball.x),
+        py(ball.y),
+        Math.max(7, ball.radius * Math.max(area.w, area.h)),
         0,
         Math.PI * 2
       );
@@ -477,8 +554,8 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     for (const [a, b] of this.poseConnections) {
       if (!visible(a) || !visible(b)) continue;
       ctx.beginPath();
-      ctx.moveTo(landmarks[a].x * canvas.width, landmarks[a].y * canvas.height);
-      ctx.lineTo(landmarks[b].x * canvas.width, landmarks[b].y * canvas.height);
+      ctx.moveTo(px(landmarks[a].x), py(landmarks[a].y));
+      ctx.lineTo(px(landmarks[b].x), py(landmarks[b].y));
       ctx.stroke();
     }
 
@@ -487,7 +564,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
       const point = landmarks[i];
       ctx.beginPath();
       ctx.fillStyle = i <= 10 ? '#3b82f6' : '#10b981';
-      ctx.arc(point.x * canvas.width, point.y * canvas.height, 5, 0, Math.PI * 2);
+      ctx.arc(px(point.x), py(point.y), 5, 0, Math.PI * 2);
       ctx.fill();
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = '#ffffff';

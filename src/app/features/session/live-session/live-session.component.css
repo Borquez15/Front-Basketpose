@@ -340,3 +340,9 @@
 .stat-cell .val.miss {
   color: var(--red);
 }
+
+.pose-area.marking-hoop {
+  cursor: crosshair;
+  outline: 2px dashed #f59e0b;
+  outline-offset: -2px;
+}

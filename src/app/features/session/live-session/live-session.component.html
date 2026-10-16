@@ -85,6 +85,12 @@
         </select>
       }
       <button class="btn btn-outline btn-sm" type="button" (click)="iniciarCamaraAnalisis()">Reiniciar camara</button>
+      <button class="btn btn-outline btn-sm" type="button" (click)="iniciarMarcadoAro()">
+        {{ markingHoop() ? 'Marcando aro...' : (hoopManual() ? 'Volver a marcar aro' : 'Marcar aro') }}
+      </button>
+      @if (hoopManual()) {
+        <button class="btn btn-outline btn-sm" type="button" (click)="reiniciarAro()">Aro automatico</button>
+      }
       <button class="btn btn-primary btn-sm" type="button"
               [disabled]="manualShotSaving()"
               (click)="registrarTiroLibreManual()">
@@ -96,7 +102,7 @@
       <div class="error-msg live-error">{{ cameraError() }}</div>
     }
 
-    <div class="pose-area">
+    <div class="pose-area" [class.marking-hoop]="markingHoop()" (click)="marcarAro($event)">
       <video #analysisVideo autoplay playsinline muted></video>
       <canvas #overlayCanvas class="pose-overlay"></canvas>
       <canvas #captureCanvas hidden></canvas>
@@ -137,6 +143,9 @@
           }
           @if (lastReleaseAngle() !== null) {
             Angulo de salida: {{ lastReleaseAngle() }}°.
+          }
+          @if (lastErrors().length) {
+            Errores: {{ lastErrors().join(', ') }}.
           }
         </div>
         <div class="ut-angulos">
