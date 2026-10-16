@@ -1,7 +1,7 @@
 // login.component.ts
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
 
@@ -22,10 +22,21 @@ export class LoginComponent implements OnInit {
   error     = signal('');
   loading   = signal(false);
   googleReady = signal(false);
+  info      = signal('');
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private auth: AuthService, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    const q = this.route.snapshot.queryParamMap;
+    const registrado = q.get('registrado');
+    if (registrado) {
+      this.email = registrado;
+      this.info.set(`Cuenta creada. Te enviamos un correo a ${registrado}: abre el enlace para verificarla y después inicia sesión.`);
+    } else if (q.get('verificado')) {
+      this.info.set('Correo verificado. Ya puedes iniciar sesión.');
+    } else if (q.get('restablecida')) {
+      this.info.set('Contraseña actualizada. Inicia sesión con tu nueva contraseña.');
+    }
     // Retry Google init until the script loads
     this._initGoogle();
   }

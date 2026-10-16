@@ -112,6 +112,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
   private hoopClicks: { x: number; y: number }[] = [];
   private lastHoop: { x: number; y: number; width: number; height: number } | null = null;
   lastErrors = signal<string[]>([]);
+  lastAnalisisId = signal<number | null>(null);
 
   stats = { tiros: 0, encestados: 0, fallados: 0, indeterminados: 0, jugadores: 0, promedio: 0 };
   private playerIds = new Set<number>();
@@ -328,6 +329,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
           this.lastErrors.set(res.errores.map(e => `${e.nombre} (${e.valor}°)`));
         }
         if (res.shot_registered) {
+          if (res.analisis_id) this.lastAnalisisId.set(res.analisis_id);
           this.stats.tiros += 1;
           this.lastShotResult.set(res.shot_result ?? 'indeterminado');
           if (res.shot_result === 'encestado') this.stats.encestados += 1;
@@ -350,7 +352,7 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     });
   }
 
-  registrarTiroLibreManual() {
+  registrarTiroLibreManual(resultado: 'encestado' | 'fallado' | 'indeterminado' = 'indeterminado') {
     const jugadorId = this.playerDetected()?.id_jugador ?? this.jugadorManualId;
     if (!this.sessionId || !jugadorId) {
       this.bodyStatus.set('Selecciona o reconoce un jugador antes de guardar el tiro libre.');
@@ -362,22 +364,25 @@ export class LiveSessionComponent implements OnInit, OnDestroy {
     this.http.post<any>(`${environment.apiUrl}/analisis`, {
       id_sesion: this.sessionId,
       id_jugador: jugadorId,
-      resultado: 'indeterminado',
+      resultado,
       tipo_tiro: 'tiros_libres',
       distancia_tiro_metros: 4.57,
       puntuacion_tecnica: score,
       analisis_valido: true,
       notas: 'Tiro libre guardado por observacion del entrenador durante la sesion en vivo.'
     }).subscribe({
-      next: () => {
+      next: (res: any) => {
         this.manualShotSaving.set(false);
+        if (res?.id_analisis) this.lastAnalisisId.set(res.id_analisis);
         this.stats.tiros += 1;
-        this.stats.indeterminados += 1;
+        if (resultado === 'encestado') this.stats.encestados += 1;
+        else if (resultado === 'fallado') this.stats.fallados += 1;
+        else this.stats.indeterminados += 1;
         const prevTotal = this.stats.promedio * (this.stats.tiros - 1);
         this.stats.promedio = Math.round((prevTotal + score) / this.stats.tiros);
         this.lastShotScore.set(score);
-        this.lastShotResult.set('indeterminado');
-        this.bodyStatus.set(`Tiro libre guardado con promedio tecnico ${score} pts.`);
+        this.lastShotResult.set(resultado);
+        this.bodyStatus.set(`Tiro libre ${resultado === 'indeterminado' ? 'guardado' : resultado} (registro del entrenador).`);
       },
       error: err => {
         this.manualShotSaving.set(false);

@@ -16,6 +16,24 @@ export class ShotAnalysisComponent {
   private route = inject(ActivatedRoute);
   data          = inject(DataService);
   errorMessage  = signal('');
+  copiado       = signal(false);
+
+  async compartir() {
+    const url = window.location.href;
+    const a = this.analisis();
+    const texto = a ? `Análisis de tiro de ${a.jugadorNombre}: ${a.puntuacionGlobal} pts` : 'Análisis de tiro';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'BasketPose', text: texto, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      this.copiado.set(true);
+      setTimeout(() => this.copiado.set(false), 2000);
+    } catch {
+      /* el usuario canceló */
+    }
+  }
 
   analisis = toSignal(
     this.route.paramMap.pipe(

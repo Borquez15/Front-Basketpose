@@ -37,10 +37,27 @@ export class AuthService {
       .pipe(tap(res => this._handleAuthResponse(res)));
   }
 
-  register(nombre: string, ap_p: string, ap_m: string, email: string, password: string): Observable<AuthResponse> {
-    return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/register`, { nombre, ap_p, ap_m, email, password })
-      .pipe(tap(res => this._handleAuthResponse(res)));
+  /** El backend crea la cuenta inactiva y manda un correo de verificación; no inicia sesión. */
+  register(nombre: string, ap_p: string, ap_m: string, email: string, password: string): Observable<{ message: string; email: string }> {
+    return this.http.post<{ message: string; email: string }>(
+      `${environment.apiUrl}/auth/register`, { nombre, ap_p, ap_m, email, password }
+    );
+  }
+
+  verifyEmail(token: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/verify-email`, { token });
+  }
+
+  forgotPassword(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, new_password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, { token, new_password });
+  }
+
+  changePassword(current_password: string, new_password: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/users/change-password`, { current_password, new_password });
   }
 
   loginWithGoogle(idToken: string): Observable<AuthResponse> {

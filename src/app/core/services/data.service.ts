@@ -49,9 +49,9 @@ export class DataService {
         categoria: 'Adulto' as Clase['categoria'],
         lugar: c.lugar ?? '',
         codigoInvitacion: c.codigo_invitacion ?? c.codigoInvitacion ?? '',
-        activa: c.activo,
-        totalJugadores: c.total_jugadores ?? c.total_miembros ?? 0,
-        promedioTecnico: c.promedio_tecnico ?? 0,
+        activa: c.activa ?? c.activo ?? true,
+        totalJugadores: c.totalJugadores ?? c.total_jugadores ?? c.total_miembros ?? 0,
+        promedioTecnico: c.promedioTecnico ?? c.promedio_tecnico ?? 0,
         rol: this._rolClase(c.rol ?? c.mi_rol ?? 'jugador'),
         reconocimientoFacial: false,
         analisisRealTime: false,
@@ -63,7 +63,7 @@ export class DataService {
   createClase(clase: Partial<Clase>): Observable<Clase> {
     const payload = { nombre: clase.nombre, descripcion: clase.descripcion };
     return this.http.post<any>(`${this.baseUrl}/clases`, payload).pipe(
-      map(c => ({ ...clase, id: c.id_clase } as Clase))
+      map(c => ({ ...clase, id: c.id_clase ?? c.id } as Clase))
     );
   }
 
@@ -223,12 +223,61 @@ export class DataService {
   }
 
   getAnalisisTiro(id: number): Observable<AnalisisTiro> {
-    return this.http.get<AnalisisTiro>(`${this.baseUrl}/analisis/${id}`);
+    return this.http.get<any>(`${this.baseUrl}/analisis/${id}`).pipe(
+      map(a => this._mapAnalisis(a))
+    );
+  }
+
+  /** Rangos de referencia del anteproyecto (sección 11) en el instante de liberación. */
+  private readonly rangosAngulos: { clave: string; nombre: string; min: number; max: number }[] = [
+    { clave: 'codo',    nombre: 'Codo',    min: 160, max: 180 },
+    { clave: 'hombro',  nombre: 'Hombro',  min: 110, max: 180 },
+    { clave: 'rodilla', nombre: 'Rodilla', min: 150, max: 180 },
+    { clave: 'tronco',  nombre: 'Tronco',  min: 160, max: 180 },
+  ];
+
+  private _mapAnalisis(a: any): AnalisisTiro {
+    const det = (a.detalles_postura ?? [])[0] ?? {};
+    const num = (v: any) => (v === null || v === undefined ? null : Number(v));
+    // Brazo de tiro: el codo más extendido
+    const der = num(det.angulo_codo_der) ?? 0;
+    const izq = num(det.angulo_codo_izq) ?? 0;
+    const lado = der >= izq ? 'der' : 'izq';
+    const angulos = this.rangosAngulos
+      .map(r => {
+        const valor = r.clave === 'tronco' ? num(det.angulo_tronco) : num(det[`angulo_${r.clave}_${lado}`]);
+        if (valor === null) return null;
+        const fuera = valor < r.min ? r.min - valor : valor > r.max ? valor - r.max : 0;
+        const estado = fuera === 0 ? 'ok' : fuera <= 10 ? 'warn' : 'error';
+        return { nombre: r.nombre, valor: Math.round(valor * 10) / 10, rangoMin: r.min, rangoMax: r.max, estado };
+      })
+      .filter(x => x !== null) as AnalisisTiro['angulos'];
+    const errores = (a.errores_detectados ?? []).map((e: any) => ({
+      nombre: e.nombre_error ?? (e.descripcion_adicional ?? 'Error técnico').split(':')[0],
+      descripcion: e.recomendacion ?? e.descripcion_adicional ?? '',
+      gravedad: 'Moderado' as const,
+    }));
+    const nombre = a.nombre_jugador ?? 'Jugador';
+    const fecha = a.creado_en ? new Date(a.creado_en) : null;
+    return {
+      id: a.id_analisis,
+      idJugador: a.id_jugador,
+      jugadorNombre: nombre,
+      jugadorInitials: this._initials(nombre),
+      jugadorAvatarColor: this._color(a.id_jugador),
+      horaEvento: fecha ? fecha.toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }) : '',
+      puntuacionGlobal: Math.round(Number(a.puntuacion_tecnica ?? 0)),
+      resultadoTiro: a.resultado === 'indeterminado' ? 'no_determinado' : a.resultado,
+      angulos,
+      errores,
+      notas: a.notas ?? '',
+    };
   }
 
   // ── REPORTE PROGRESO ──────────────────────────────────────────────────────
-  getReporteProgreso(jugadorId: number): Observable<ReporteProgreso> {
-    return this.http.get<ReporteProgreso>(`${this.baseUrl}/jugadores/${jugadorId}/reporte`);
+  getReporteProgreso(jugadorId: number, dias?: number): Observable<ReporteProgreso> {
+    const params: Record<string, string> = dias ? { dias: String(dias) } : {};
+    return this.http.get<ReporteProgreso>(`${this.baseUrl}/jugadores/${jugadorId}/reporte`, { params });
   }
 
   enviarReporteJugador(jugadorId: number, email?: string): Observable<{ message: string; email?: string }> {

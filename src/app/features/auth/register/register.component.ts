@@ -36,9 +36,10 @@ export class RegisterComponent {
     this.error.set('');
 
     this.auth.register(this.nombre, this.ap_p, this.ap_m, this.email, this.password).subscribe({
-      next: () => this.router.navigate(['/app/dashboard']),
-      error: () => {
-        this.error.set('Error al crear la cuenta. Intenta de nuevo.');
+      next: () => this.router.navigate(['/auth/login'], { queryParams: { registrado: this.email } }),
+      error: (err) => {
+        const detail = err?.error?.detail;
+        this.error.set(typeof detail === 'string' ? detail : 'Error al crear la cuenta. Intenta de nuevo.');
         this.loading.set(false);
       }
     });

@@ -90,6 +90,8 @@ export interface ErrorDetectado {
 
 export interface AnalisisTiro {
   id: number;
+  idJugador?: number;
+  notas?: string;
   jugadorNombre: string;
   jugadorInitials: string;
   jugadorAvatarColor: string;

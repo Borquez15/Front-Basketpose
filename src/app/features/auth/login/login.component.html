@@ -8,6 +8,9 @@
     </div>
 
     <div class="login-form">
+      @if (info()) {
+        <div class="info-msg">{{ info() }}</div>
+      }
       @if (error()) {
         <div class="error-msg">{{ error() }}</div>
       }
@@ -32,7 +35,7 @@
         {{ loading() ? 'Iniciando…' : 'Iniciar sesión' }}
       </button>
 
-      <a class="forgot">¿Olvidaste tu contraseña?</a>
+      <a class="forgot" routerLink="/auth/olvide-contrasena">¿Olvidaste tu contraseña?</a>
 
       @if (googleReady()) {
         <div class="or-divider">o</div>

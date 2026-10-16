@@ -100,3 +100,13 @@
   padding: 10px 14px;
   font-size: 0.82rem;
 }
+.info-msg {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: var(--green, #10b981);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.forgot { cursor: pointer; }

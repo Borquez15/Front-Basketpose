@@ -1,8 +1,8 @@
 // progress-report.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { catchError, combineLatest, map, of, switchMap } from 'rxjs';
 import { DataService } from '../../../core/services/data.service';
 import { Jugador } from '../../../core/models';
 import { NavbarComponent } from '../../../shared/components/navbar/navbar.component';
@@ -32,14 +32,16 @@ export class ProgressReportComponent {
 
   jugadores = toSignal(this.data.getJugadores(), { initialValue: [] as Jugador[] });
 
+  private readonly diasPorPeriodo = { '7d': 7, '30d': 30, '3m': 90 } as const;
+
   reporte = toSignal(
-    this.route.paramMap.pipe(
-      switchMap(p => {
+    combineLatest([this.route.paramMap, toObservable(this.periodo)]).pipe(
+      switchMap(([p, periodo]) => {
         const id = Number(p.get('id'));
         this.errorMessage.set('');
         if (!Number.isFinite(id) || id <= 0) return of(null);
 
-        return this.data.getReporteProgreso(id).pipe(
+        return this.data.getReporteProgreso(id, this.diasPorPeriodo[periodo]).pipe(
           catchError(err => {
             this.errorMessage.set(
               err?.status === 404

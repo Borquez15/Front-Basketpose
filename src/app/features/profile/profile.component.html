@@ -37,23 +37,25 @@
         <span class="arrow">›</span>
       </div>
 
-      <div class="setting-row">
+      <div class="setting-row" (click)="cambiandoPass.set(!cambiandoPass())">
         <div class="setting-left">
           <div class="setting-icon">🔒</div>
           <span class="setting-text">Cambiar contraseña</span>
         </div>
-        <span class="arrow">›</span>
+        <span class="arrow">{{ cambiandoPass() ? '⌄' : '›' }}</span>
       </div>
-
-      <div class="setting-row" (click)="actualizarRostro()">
-        <div class="setting-left">
-          <div class="setting-icon">🫠</div>
-          <span class="setting-text">Reconocimiento facial</span>
+      @if (cambiandoPass()) {
+        <div class="pass-form">
+          @if (passMsg()) { <div class="pass-ok">{{ passMsg() }}</div> }
+          @if (passError()) { <div class="pass-error">{{ passError() }}</div> }
+          <input type="password" placeholder="Contraseña actual" [(ngModel)]="passActual"/>
+          <input type="password" placeholder="Nueva contraseña (mínimo 6)" [(ngModel)]="passNueva"/>
+          <input type="password" placeholder="Confirmar nueva contraseña" [(ngModel)]="passConfirm"/>
+          <button class="btn btn-primary btn-sm" type="button" [disabled]="passLoading()" (click)="cambiarPassword()">
+            {{ passLoading() ? 'Guardando…' : 'Guardar' }}
+          </button>
         </div>
-        <span class="face-status" [class.updated]="faceUpdated()">
-          {{ faceUpdated() ? '✅ Actualizado' : 'Actualizar ›' }}
-        </span>
-      </div>
+      }
 
       <div class="setting-row">
         <div class="setting-left">

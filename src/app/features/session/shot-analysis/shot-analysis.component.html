@@ -13,7 +13,7 @@
       <div class="avatar avatar-lg" [style.background]="a.jugadorAvatarColor">{{ a.jugadorInitials }}</div>
       <div>
         <div class="player-name">{{ a.jugadorNombre }}</div>
-        <div class="player-sub">Último análisis · {{ a.horaEvento }}</div>
+        <div class="player-sub">Análisis del tiro · {{ a.horaEvento }} · {{ a.resultadoTiro === 'encestado' ? 'Encestado' : a.resultadoTiro === 'fallado' ? 'Fallado' : 'Resultado no determinado' }}</div>
       </div>
     </div>
 
@@ -55,6 +55,8 @@
           </div>
           <span class="angle-val" [style.color]="estadoColor(ang.estado)">{{ ang.valor }}°</span>
         </div>
+      } @empty {
+        <div class="angle-range">No se registraron ángulos para este tiro (tiro guardado manualmente).</div>
       }
     </div>
 
@@ -69,12 +71,14 @@
           </div>
           <span [class]="gravedadChip(err.gravedad)">{{ err.gravedad }}</span>
         </div>
+      } @empty {
+        <div class="angle-range">Sin errores técnicos detectados en este tiro.</div>
       }
     </div>
 
     <div class="actions">
-      <button class="btn btn-outline" [routerLink]="['/app/reporte', a.id]">📋 Ver historial</button>
-      <button class="btn btn-primary">↗ Compartir</button>
+      <button class="btn btn-outline" [routerLink]="['/app/reporte', a.idJugador]">📋 Ver historial</button>
+      <button class="btn btn-primary" type="button" (click)="compartir()">{{ copiado() ? '✅ Enlace copiado' : '↗ Compartir' }}</button>
     </div>
     } @else if (errorMessage()) {
     <div class="empty-state">

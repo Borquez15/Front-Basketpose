@@ -93,9 +93,10 @@
       }
       <button class="btn btn-primary btn-sm" type="button"
               [disabled]="manualShotSaving()"
-              (click)="registrarTiroLibreManual()">
-        {{ manualShotSaving() ? 'Guardando...' : 'Guardar tiro libre' }}
-      </button>
+              (click)="registrarTiroLibreManual('encestado')">✅ Encestó</button>
+      <button class="btn btn-outline btn-sm" type="button"
+              [disabled]="manualShotSaving()"
+              (click)="registrarTiroLibreManual('fallado')">❌ Falló</button>
     </div>
 
     @if (cameraError()) {
@@ -146,6 +147,9 @@
           }
           @if (lastErrors().length) {
             Errores: {{ lastErrors().join(', ') }}.
+          }
+          @if (lastAnalisisId()) {
+            <a [routerLink]="['/app/analisis', lastAnalisisId()]" target="_blank">Ver análisis del último tiro ›</a>
           }
         </div>
         <div class="ut-angulos">
