@@ -1,0 +1,10 @@
+# Servidor estático para la app Angular (Railway define PORT)
+:{$PORT:8080} {
+	root * /srv
+	encode gzip
+	# config.js no se cachea para que cambie con la variable API_URL
+	@config path /config.js
+	header @config Cache-Control "no-store"
+	try_files {path} /index.html
+	file_server
+}
